@@ -143,7 +143,7 @@ class _StormSection extends StatelessWidget {
                 const Spacer(),
                 Row(
                   children: [
-                    if (tracker.hasAbilityCard(storm))
+                    if (tracker.hasGrowthTargetCard(storm))
                       Container(
                         margin: const EdgeInsets.only(right: 4),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -161,7 +161,7 @@ class _StormSection extends StatelessWidget {
                             ),
                             SizedBox(width: 4),
                             Text(
-                              'Ability',
+                              'Growth Target',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,

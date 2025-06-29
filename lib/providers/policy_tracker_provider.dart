@@ -3,10 +3,10 @@ import '../models/policy_data.dart';
 
 class PolicyTrackerProvider extends ChangeNotifier {
   final Map<PolicyKey, int> _policyCounts = {};
-  final Set<StormType> _shownAbilityPopups = {};
+  final Set<StormType> _shownGrowthTargetPopups = {};
   final Set<StormType> _shownAgentOfYearPopups = {};
   
-  static const int abilityThreshold = 2;
+  static const int growthTargetThreshold = 2;
   static const int agentOfYearThreshold = 7;
 
   PolicyTrackerProvider() {
@@ -69,8 +69,8 @@ class PolicyTrackerProvider extends ChangeNotifier {
     return total;
   }
 
-  bool hasAbilityCard(StormType storm) {
-    return getStormTotal(storm) >= abilityThreshold;
+  bool hasGrowthTargetCard(StormType storm) {
+    return getStormTotal(storm) >= growthTargetThreshold;
   }
 
   bool hasAgentOfYearCard(StormType storm) {
@@ -80,18 +80,18 @@ class PolicyTrackerProvider extends ChangeNotifier {
   void _checkThreshold(StormType storm, BuildContext context) {
     final total = getStormTotal(storm);
     
-    // Check Ability threshold
-    if (total >= abilityThreshold && !_shownAbilityPopups.contains(storm)) {
-      _shownAbilityPopups.add(storm);
+    // Check Growth Target threshold
+    if (total >= growthTargetThreshold && !_shownGrowthTargetPopups.contains(storm)) {
+      _shownGrowthTargetPopups.add(storm);
       
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Ability Card Available!'),
+            title: const Text('Growth Target Card Available!'),
             content: Text(
-              'You now have $abilityThreshold or more ${PolicyData.stormNames[storm]} policies.\n\n'
-              'Remember to collect your ${PolicyData.stormNames[storm]} Ability card from the game!',
+              'You now have $growthTargetThreshold or more ${PolicyData.stormNames[storm]} policies.\n\n'
+              'Remember to collect your ${PolicyData.stormNames[storm]} Growth Target card from the game!',
             ),
             actions: [
               TextButton(
