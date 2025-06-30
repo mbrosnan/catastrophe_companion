@@ -1,0 +1,9 @@
+{
+  "name": "Stacked Apart",
+  "filename": "stacked_apart.json",
+  "description": "Mansions in two storm types, mobile homes in two different storm types (all randomly selected).",
+  "specialMode": "stackedApart",
+  "acceptableStormDifference": 50,
+  "mansionWeights": {},
+  "mobileHomeWeights": {}
+}

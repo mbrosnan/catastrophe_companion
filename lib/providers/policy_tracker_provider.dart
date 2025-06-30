@@ -70,19 +70,40 @@ class PolicyTrackerProvider extends ChangeNotifier {
   }
 
   bool hasGrowthTargetCard(StormType storm) {
+    // For hurricanes, show icon only on Hurricane-Other when combined total reaches threshold
+    if (storm == StormType.hurricaneOther) {
+      return (getStormTotal(StormType.hurricaneOther) + getStormTotal(StormType.hurricaneFlorida)) >= growthTargetThreshold;
+    } else if (storm == StormType.hurricaneFlorida) {
+      return false; // Never show icon on Hurricane-Florida
+    }
     return getStormTotal(storm) >= growthTargetThreshold;
   }
 
   bool hasAgentOfYearCard(StormType storm) {
+    // For hurricanes, show icon only on Hurricane-Other when combined total reaches threshold
+    if (storm == StormType.hurricaneOther) {
+      return (getStormTotal(StormType.hurricaneOther) + getStormTotal(StormType.hurricaneFlorida)) >= agentOfYearThreshold;
+    } else if (storm == StormType.hurricaneFlorida) {
+      return false; // Never show icon on Hurricane-Florida
+    }
     return getStormTotal(storm) >= agentOfYearThreshold;
   }
 
   void _checkThreshold(StormType storm, BuildContext context) {
-    final total = getStormTotal(storm);
+    // For hurricane cards, count both hurricane types together
+    final total = (storm == StormType.hurricaneOther || storm == StormType.hurricaneFlorida)
+        ? getStormTotal(StormType.hurricaneOther) + getStormTotal(StormType.hurricaneFlorida)
+        : getStormTotal(storm);
+    
+    // Use hurricaneOther as the key for both hurricane types
+    final popupKey = (storm == StormType.hurricaneFlorida) ? StormType.hurricaneOther : storm;
+    final displayName = (storm == StormType.hurricaneOther || storm == StormType.hurricaneFlorida)
+        ? 'Hurricane'
+        : PolicyData.stormNames[storm];
     
     // Check Growth Target threshold
-    if (total >= growthTargetThreshold && !_shownGrowthTargetPopups.contains(storm)) {
-      _shownGrowthTargetPopups.add(storm);
+    if (total >= growthTargetThreshold && !_shownGrowthTargetPopups.contains(popupKey)) {
+      _shownGrowthTargetPopups.add(popupKey);
       
       showDialog(
         context: context,
@@ -90,8 +111,8 @@ class PolicyTrackerProvider extends ChangeNotifier {
           return AlertDialog(
             title: const Text('Growth Target Card Available!'),
             content: Text(
-              'You now have $growthTargetThreshold or more ${PolicyData.stormNames[storm]} policies.\n\n'
-              'Remember to collect your ${PolicyData.stormNames[storm]} Growth Target card from the game!',
+              'You now have $growthTargetThreshold or more $displayName policies.\n\n'
+              'Remember to collect your $displayName Growth Target card from the game!',
             ),
             actions: [
               TextButton(
@@ -105,8 +126,8 @@ class PolicyTrackerProvider extends ChangeNotifier {
     }
     
     // Check Agent of the Year threshold
-    if (total >= agentOfYearThreshold && !_shownAgentOfYearPopups.contains(storm)) {
-      _shownAgentOfYearPopups.add(storm);
+    if (total >= agentOfYearThreshold && !_shownAgentOfYearPopups.contains(popupKey)) {
+      _shownAgentOfYearPopups.add(popupKey);
       
       showDialog(
         context: context,
@@ -114,8 +135,8 @@ class PolicyTrackerProvider extends ChangeNotifier {
           return AlertDialog(
             title: const Text('Agent of the Year Card Available!'),
             content: Text(
-              'You now have $agentOfYearThreshold or more ${PolicyData.stormNames[storm]} policies.\n\n'
-              'Congratulations! Remember to collect your ${PolicyData.stormNames[storm]} Agent of the Year card from the game!',
+              'You now have $agentOfYearThreshold or more $displayName policies.\n\n'
+              'Congratulations! Remember to collect your $displayName Agent of the Year card from the game!',
             ),
             actions: [
               TextButton(

@@ -67,14 +67,19 @@ Core data types to implement:
 Storm types with colors:
 1. Snow (white)
 2. Earthquake (brown)
-3. Hurricane-Other (lavender)
+3. Hurricane-Other (lavender) - labeled as "Hurricane" in UI
 4. Flood (blue)
 5. Fire (red)
 6. Hail (yellow)
 7. Tornado (grey)
-8. Hurricane-Florida (purple)
+8. Hurricane-Florida (purple) - labeled as "Hurricane" in UI
 
 Property types: Mansion, House, Mobile Home
+
+### Important Hurricane Behavior
+- Hurricane-Other and Hurricane-Florida are tracked separately for policies, payouts, and insolvency
+- However, they count together for Growth Target and Agent of the Year cards
+- Only one Hurricane card exists in the game, triggered when total Hurricane policies (both types) reach thresholds
 
 ### State Management
 

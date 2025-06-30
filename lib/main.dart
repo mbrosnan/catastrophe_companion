@@ -4,10 +4,12 @@ import 'providers/policy_tracker_provider.dart';
 import 'providers/payout_calculator_provider.dart';
 import 'providers/cards_provider.dart';
 import 'providers/insolvency_calculator_provider.dart';
+import 'providers/map_configuration_provider.dart';
 import 'screens/tracker_screen.dart';
 import 'screens/payout_calculator_screen.dart';
 import 'screens/cards_screen.dart';
 import 'screens/insolvency_calculator_screen.dart';
+import 'screens/map_configuration_screen.dart';
 
 void main() {
   runApp(const CatastropheCompanionApp());
@@ -24,6 +26,7 @@ class CatastropheCompanionApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PayoutCalculatorProvider()),
         ChangeNotifierProvider(create: (_) => CardsProvider()),
         ChangeNotifierProvider(create: (_) => InsolvencyCalculatorProvider()),
+        ChangeNotifierProvider(create: (_) => MapConfigurationProvider()),
       ],
       child: MaterialApp(
         title: 'Catastrophe Companion',
@@ -114,45 +117,6 @@ class _MainScreenState extends State<MainScreen> {
 
 
 
-
-
-class MapConfigurationScreen extends StatelessWidget {
-  const MapConfigurationScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.map,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Map Configuration',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Configure game board setup.\n\n'
-              'Generate random or pre-made\n'
-              'configurations for placing\n'
-              'mansions and mobile homes.\n\n'
-              '(Coming in a future update)',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

@@ -33,10 +33,10 @@ class CardsProvider extends ChangeNotifier {
       agentStorm: StormType.earthquake,
     ),
     const VictoryCard(
-      name: 'Hurricane-Other Agent',
+      name: 'Hurricane Agent',
       victoryPoints: 10,
       isAgent: true,
-      agentStorm: StormType.hurricaneOther,
+      agentStorm: StormType.hurricaneOther, // Used for both hurricane types
     ),
     const VictoryCard(
       name: 'Flood Agent',
@@ -61,12 +61,6 @@ class CardsProvider extends ChangeNotifier {
       victoryPoints: 10,
       isAgent: true,
       agentStorm: StormType.tornado,
-    ),
-    const VictoryCard(
-      name: 'Hurricane-Florida Agent',
-      victoryPoints: 10,
-      isAgent: true,
-      agentStorm: StormType.hurricaneFlorida,
     ),
     // Celebrity Endorsement Cards
     const VictoryCard(
