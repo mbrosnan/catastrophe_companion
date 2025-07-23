@@ -107,7 +107,19 @@ class _StormSection extends StatelessWidget {
     final tracker = Provider.of<PolicyTrackerProvider>(context);
     final stormTotal = tracker.getStormTotal(storm);
     final stormColor = PolicyData.stormColors[storm] ?? Colors.grey;
-    final effectiveColor = stormColor == Colors.white ? Colors.grey[300]! : stormColor;
+    final backgroundColor = PolicyData.stormBackgroundColors[storm];
+    final hasCustomBackground = backgroundColor != null;
+    
+    // For storms with custom backgrounds, use the background color for container
+    // For others, use the storm color with opacity
+    final containerColor = hasCustomBackground 
+        ? backgroundColor 
+        : stormColor.withOpacity(0.2);
+    
+    // For text and icons, always use the storm color
+    final textColor = stormColor == Colors.yellow 
+        ? Colors.orange[800]! 
+        : stormColor;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -116,7 +128,7 @@ class _StormSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: effectiveColor.withOpacity(0.2),
+              color: containerColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -126,7 +138,7 @@ class _StormSection extends StatelessWidget {
               children: [
                 Icon(
                   _getStormIcon(storm),
-                  color: effectiveColor,
+                  color: textColor,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
@@ -135,9 +147,7 @@ class _StormSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: effectiveColor == Colors.yellow 
-                        ? Colors.orange[800] 
-                        : effectiveColor,
+                    color: textColor,
                   ),
                 ),
                 const Spacer(),

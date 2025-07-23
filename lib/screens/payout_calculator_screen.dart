@@ -92,7 +92,13 @@ class _StormPayoutCard extends StatelessWidget {
     final selectedPayout = payoutProvider.getSelectedPayout(storm);
     final payoutOptions = PolicyData.stormPayouts[storm] ?? [0];
     final stormColor = PolicyData.stormColors[storm] ?? Colors.grey;
-    final effectiveColor = stormColor == Colors.white ? Colors.grey[300]! : stormColor;
+    final backgroundColor = PolicyData.stormBackgroundColors[storm];
+    final hasCustomBackground = backgroundColor != null;
+    
+    // For text and icons, always use the storm color
+    final textColor = stormColor == Colors.yellow 
+        ? Colors.orange[800]! 
+        : stormColor;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -105,25 +111,36 @@ class _StormPayoutCard extends StatelessWidget {
               children: [
                 Icon(
                   _getStormIcon(storm),
-                  color: effectiveColor,
+                  color: textColor,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  PolicyData.stormNames[storm] ?? '',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: effectiveColor == Colors.yellow 
-                        ? Colors.orange[800] 
-                        : effectiveColor,
+                Container(
+                  padding: hasCustomBackground 
+                      ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+                      : EdgeInsets.zero,
+                  decoration: hasCustomBackground 
+                      ? BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(6),
+                        )
+                      : null,
+                  child: Text(
+                    PolicyData.stormNames[storm] ?? '',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
                 ),
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: effectiveColor.withOpacity(0.2),
+                    color: hasCustomBackground 
+                        ? backgroundColor!
+                        : stormColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
@@ -131,9 +148,7 @@ class _StormPayoutCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: effectiveColor == Colors.yellow 
-                          ? Colors.orange[800] 
-                          : effectiveColor,
+                      color: textColor,
                     ),
                   ),
                 ),
@@ -147,8 +162,26 @@ class _StormPayoutCard extends StatelessWidget {
                     value: selectedPayout,
                     decoration: InputDecoration(
                       labelText: 'Payout per policy',
+                      labelStyle: TextStyle(
+                        color: textColor,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: hasCustomBackground 
+                              ? backgroundColor!.withOpacity(0.8)
+                              : stormColor.withOpacity(0.5),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: textColor,
+                          width: 2,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,

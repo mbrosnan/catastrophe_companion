@@ -113,9 +113,13 @@ class _CardTile extends StatelessWidget {
     
     if (card.isAgent && card.agentStorm != null) {
       final stormColor = PolicyData.stormColors[card.agentStorm!] ?? Colors.grey;
-      iconColor = stormColor == Colors.white ? Colors.grey : stormColor;
+      iconColor = stormColor == Colors.yellow ? Colors.orange[800]! : stormColor;
+      final backgroundColor = PolicyData.stormBackgroundColors[card.agentStorm!];
       if (isChecked) {
-        tileColor = iconColor.withOpacity(0.1);
+        // Use custom background color if available, otherwise use storm color
+        tileColor = backgroundColor != null 
+            ? backgroundColor.withOpacity(0.3)
+            : stormColor.withOpacity(0.1);
       }
     } else if (!card.isAgent) {
       iconColor = Colors.amber;

@@ -14,14 +14,20 @@ enum StormType {
 
 // Storm type colors based on the game
 const Map<StormType, Color> stormColors = {
-  StormType.snow: Colors.white,
+  StormType.snow: Colors.lightBlue,
   StormType.earthquake: Color(0xFF8B4513), // Brown
-  StormType.hurricaneOther: Color(0xFFE6E6FA), // Lavender
+  StormType.hurricaneOther: Color(0xFFE6E6FA), // Lavender - will be used as text color
   StormType.hurricaneFlorida: Color(0xFF9370DB), // Purple (medium purple)
   StormType.flood: Colors.blue,
   StormType.fire: Colors.red,
   StormType.hail: Colors.yellow,
   StormType.tornado: Colors.grey,
+};
+
+// Custom background colors for storms that need different background than text
+const Map<StormType, Color> stormBackgroundColors = {
+  StormType.snow: Color(0xFF424242), // Dark grey
+  StormType.hurricaneOther: Color(0xFF424242), // Dark grey
 };
 
 enum PropertyType {

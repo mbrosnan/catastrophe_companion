@@ -17,15 +17,22 @@ class StateChip extends StatelessWidget {
   Widget build(BuildContext context) {
     if (stormTypes.length == 1) {
       // Single storm type - simple colored chip
+      final stormType = stormTypes.first;
+      final stormColor = stormColors[stormType]!;
+      final backgroundColor = stormBackgroundColors[stormType];
+      final hasCustomBackground = backgroundColor != null;
+      
       return Chip(
         label: Text(
           '$stateCode: $count',
           style: TextStyle(
-            color: _getTextColor(stormColors[stormTypes.first]!),
+            color: hasCustomBackground 
+                ? stormColor  // Use storm color as text when custom background
+                : _getTextColor(stormColor),  // Otherwise calculate based on background
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: stormColors[stormTypes.first],
+        backgroundColor: hasCustomBackground ? backgroundColor : stormColor,
       );
     } else {
       // Multi-storm state - custom painted chip with hard split
@@ -39,8 +46,8 @@ class StateChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: CustomPaint(
             painter: _SplitColorPainter(
-              leftColor: stormColors[stormTypes[0]]!,
-              rightColor: stormColors[stormTypes[1]]!,
+              leftColor: stormBackgroundColors[stormTypes[0]] ?? stormColors[stormTypes[0]]!,
+              rightColor: stormBackgroundColors[stormTypes[1]] ?? stormColors[stormTypes[1]]!,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
