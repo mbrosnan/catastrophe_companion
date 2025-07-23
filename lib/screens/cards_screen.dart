@@ -111,15 +111,23 @@ class _CardTile extends StatelessWidget {
     Color? tileColor;
     Color? iconColor;
     
-    if (card.isAgent && card.agentStorm != null) {
-      final stormColor = PolicyData.stormColors[card.agentStorm!] ?? Colors.grey;
-      iconColor = stormColor == Colors.yellow ? Colors.orange[800]! : stormColor;
-      final backgroundColor = PolicyData.stormBackgroundColors[card.agentStorm!];
-      if (isChecked) {
-        // Use custom background color if available, otherwise use storm color
-        tileColor = backgroundColor != null 
-            ? backgroundColor.withOpacity(0.3)
-            : stormColor.withOpacity(0.1);
+    if (card.isAgent) {
+      if (card.name == 'Diversified Agent of the Year') {
+        // Use a rainbow/multicolor theme for diversified agent
+        iconColor = Colors.deepPurple;
+        if (isChecked) {
+          tileColor = Colors.deepPurple.withOpacity(0.1);
+        }
+      } else if (card.agentStorm != null) {
+        final stormColor = PolicyData.stormColors[card.agentStorm!] ?? Colors.grey;
+        iconColor = stormColor == Colors.yellow ? Colors.orange[800]! : stormColor;
+        final backgroundColor = PolicyData.stormBackgroundColors[card.agentStorm!];
+        if (isChecked) {
+          // Use custom background color if available, otherwise use storm color
+          tileColor = backgroundColor != null 
+              ? backgroundColor.withOpacity(0.3)
+              : stormColor.withOpacity(0.1);
+        }
       }
     } else if (!card.isAgent) {
       iconColor = Colors.amber;
@@ -149,7 +157,11 @@ class _CardTile extends StatelessWidget {
           ),
         ),
         secondary: Icon(
-          card.isAgent ? _getStormIcon(card.agentStorm!) : Icons.star,
+          card.isAgent 
+              ? (card.name == 'Diversified Agent of the Year' 
+                  ? Icons.diversity_3 
+                  : _getStormIcon(card.agentStorm!))
+              : Icons.star,
           color: iconColor,
           size: 32,
         ),

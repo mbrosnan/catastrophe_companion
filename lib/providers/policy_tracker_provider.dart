@@ -5,6 +5,7 @@ class PolicyTrackerProvider extends ChangeNotifier {
   final Map<PolicyKey, int> _policyCounts = {};
   final Set<StormType> _shownGrowthTargetPopups = {};
   final Set<StormType> _shownAgentOfYearPopups = {};
+  bool _shownDiversifiedAgentPopup = false;
   
   static const int growthTargetThreshold = 2;
   static const int agentOfYearThreshold = 6;
@@ -89,6 +90,26 @@ class PolicyTrackerProvider extends ChangeNotifier {
     return getStormTotal(storm) >= agentOfYearThreshold;
   }
 
+  bool hasDiversifiedAgent() {
+    // Check if player has at least 1 policy in every storm type (treating hurricanes as one)
+    final stormTypesWithPolicies = <StormType>{};
+    
+    for (final storm in StormType.values) {
+      if (storm == StormType.hurricaneFlorida) continue; // Skip Florida, count as hurricaneOther
+      
+      final total = storm == StormType.hurricaneOther
+          ? getStormTotal(StormType.hurricaneOther) + getStormTotal(StormType.hurricaneFlorida)
+          : getStormTotal(storm);
+          
+      if (total > 0) {
+        stormTypesWithPolicies.add(storm);
+      }
+    }
+    
+    // Need policies in all 7 storm types (counting hurricanes as one)
+    return stormTypesWithPolicies.length == 7;
+  }
+
   void _checkThreshold(StormType storm, BuildContext context) {
     // For hurricane cards, count both hurricane types together
     final total = (storm == StormType.hurricaneOther || storm == StormType.hurricaneFlorida)
@@ -137,6 +158,30 @@ class PolicyTrackerProvider extends ChangeNotifier {
             content: Text(
               'You now have $agentOfYearThreshold or more $displayName policies.\n\n'
               'Congratulations! Remember to collect your $displayName Agent of the Year card from the game!',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    
+    // Check Diversified Agent of the Year
+    if (!_shownDiversifiedAgentPopup && hasDiversifiedAgent()) {
+      _shownDiversifiedAgentPopup = true;
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Diversified Agent of the Year!'),
+            content: const Text(
+              'You now have at least 1 policy in every storm type!\n\n'
+              'Congratulations! Remember to collect your Diversified Agent of the Year card from the game (10 Victory Points)!',
             ),
             actions: [
               TextButton(

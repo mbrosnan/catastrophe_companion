@@ -62,6 +62,11 @@ class CardsProvider extends ChangeNotifier {
       isAgent: true,
       agentStorm: StormType.tornado,
     ),
+    const VictoryCard(
+      name: 'Diversified Agent of the Year',
+      victoryPoints: 10,
+      isAgent: true,
+    ),
     // Celebrity Endorsement Cards
     const VictoryCard(
       name: 'Major Celebrity Endorsement',
