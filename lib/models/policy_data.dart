@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 enum StormType {
-  snow,
   earthquake,
+  snow,
   hurricaneOther,
   flood,
   fire,

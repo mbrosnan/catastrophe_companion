@@ -21,16 +21,16 @@ class CardsProvider extends ChangeNotifier {
   static final List<VictoryCard> allCards = [
     // Storm Agent Cards
     const VictoryCard(
-      name: 'Snow Agent',
-      victoryPoints: 10,
-      isAgent: true,
-      agentStorm: StormType.snow,
-    ),
-    const VictoryCard(
       name: 'Earthquake Agent',
       victoryPoints: 10,
       isAgent: true,
       agentStorm: StormType.earthquake,
+    ),
+    const VictoryCard(
+      name: 'Snow Agent',
+      victoryPoints: 10,
+      isAgent: true,
+      agentStorm: StormType.snow,
     ),
     const VictoryCard(
       name: 'Hurricane Agent',
