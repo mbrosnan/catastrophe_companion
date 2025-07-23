@@ -18,8 +18,16 @@ class StateChip extends StatelessWidget {
     if (stormTypes.length == 1) {
       // Single storm type - simple colored chip
       final stormType = stormTypes.first;
-      final stormColor = stormColors[stormType]!;
-      final backgroundColor = stormBackgroundColors[stormType];
+      
+      // Special handling for Florida - show as dark purple even though it's hurricaneOther
+      final isFloridaHurricane = stateCode == 'FL' && stormType == StormType.hurricaneOther;
+      final displayColor = isFloridaHurricane 
+          ? stormColors[StormType.hurricaneFlorida]!  // Use Florida purple color
+          : stormColors[stormType]!;
+      
+      final backgroundColor = isFloridaHurricane
+          ? null  // No custom background for Florida
+          : stormBackgroundColors[stormType];
       final hasCustomBackground = backgroundColor != null;
       
       return Chip(
@@ -27,12 +35,12 @@ class StateChip extends StatelessWidget {
           '$stateCode: $count',
           style: TextStyle(
             color: hasCustomBackground 
-                ? stormColor  // Use storm color as text when custom background
-                : _getTextColor(stormColor),  // Otherwise calculate based on background
+                ? displayColor  // Use storm color as text when custom background
+                : _getTextColor(displayColor),  // Otherwise calculate based on background
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: hasCustomBackground ? backgroundColor : stormColor,
+        backgroundColor: hasCustomBackground ? backgroundColor : displayColor,
       );
     } else {
       // Multi-storm state - custom painted chip with hard split

@@ -143,7 +143,7 @@ const Map<String, StateInfo> usStates = {
   'WV': StateInfo(code: 'WV', name: 'West Virginia', spaces: 1, stormTypes: [StormType.hail]),
   'AL': StateInfo(code: 'AL', name: 'Alabama', spaces: 2, stormTypes: [StormType.hurricaneOther]),
   'GA': StateInfo(code: 'GA', name: 'Georgia', spaces: 3, stormTypes: [StormType.hurricaneOther]),
-  'FL': StateInfo(code: 'FL', name: 'Florida', spaces: 5, stormTypes: [StormType.hurricaneFlorida]),
+  'FL': StateInfo(code: 'FL', name: 'Florida', spaces: 5, stormTypes: [StormType.hurricaneOther]),
   'SC': StateInfo(code: 'SC', name: 'South Carolina', spaces: 2, stormTypes: [StormType.hurricaneOther]),
   'NC': StateInfo(code: 'NC', name: 'North Carolina', spaces: 3, stormTypes: [StormType.hurricaneOther]),
   'VA': StateInfo(code: 'VA', name: 'Virginia', spaces: 2, stormTypes: [StormType.hurricaneOther]),

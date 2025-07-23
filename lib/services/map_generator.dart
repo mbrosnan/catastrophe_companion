@@ -4,6 +4,11 @@ import '../models/map_configuration.dart';
 class MapGenerator {
   final Random _random = Random();
 
+  // Helper method to treat Florida hurricanes as regular hurricanes
+  StormType _getEffectiveStormType(StormType storm) {
+    return storm == StormType.hurricaneFlorida ? StormType.hurricaneOther : storm;
+  }
+
   GenerationResult generateMap({
     required MapProfile profile,
     required MapConfigurationSettings settings,
@@ -76,9 +81,11 @@ class MapGenerator {
       }
     }
     
-    // Initialize storm counts to 0
+    // Initialize storm counts to 0 (excluding hurricaneFlorida which is treated as hurricaneOther)
     for (final storm in StormType.values) {
-      stormCounts[storm] = 0;
+      if (storm != StormType.hurricaneFlorida) {
+        stormCounts[storm] = 0;
+      }
     }
 
     // Generate mansion assignments
@@ -167,14 +174,15 @@ class MapGenerator {
         bool canAssign = true;
         
         for (final storm in stateInfo.stormTypes) {
-          final effectiveStorm = storm;
+          final effectiveStorm = _getEffectiveStormType(storm);
           final currentCount = stormCounts[effectiveStorm] ?? 0;
           
           // Check if adding to this storm would exceed acceptable difference
           for (final otherStorm in StormType.values) {
-            if (otherStorm == storm) continue;
+            final effectiveOtherStorm = _getEffectiveStormType(otherStorm);
+            if (effectiveOtherStorm == effectiveStorm) continue;
             
-            final otherCount = stormCounts[otherStorm] ?? 0;
+            final otherCount = stormCounts[effectiveOtherStorm] ?? 0;
             
             if ((currentCount + 1) - otherCount > acceptableDifference) {
               canAssign = false;
@@ -210,7 +218,7 @@ class MapGenerator {
       // Update storm counts
       final stateInfo = usStates[selectedState]!;
       for (final storm in stateInfo.stormTypes) {
-        final effectiveStorm = storm;
+        final effectiveStorm = _getEffectiveStormType(storm);
         stormCounts[effectiveStorm] = (stormCounts[effectiveStorm] ?? 0) + 1;
       }
       
@@ -248,8 +256,10 @@ class MapGenerator {
     final mansionAssignments = <String, int>{};
     final mobileHomeAssignments = <String, int>{};
     
-    // Get valid storm types
-    final validStormTypes = StormType.values.toList();
+    // Get valid storm types (excluding hurricaneFlorida which is treated as hurricaneOther)
+    final validStormTypes = StormType.values
+        .where((storm) => storm != StormType.hurricaneFlorida)
+        .toList();
     
     if (profile.specialMode == 'stackedTogether') {
       // Select 2 random storm types for both property types
