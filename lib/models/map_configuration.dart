@@ -101,8 +101,8 @@ class MapConfigurationSettings {
   bool limitFloridaToOne = false;
   bool limitTexasToOne = false;
   bool limitCaliforniaToOne = false;
-  int numberOfMansions = 10;
-  int numberOfMobileHomes = 10;
+  int numberOfMansions = 15;
+  int numberOfMobileHomes = 15;
   String selectedProfile = 'balanced_random';
 
   MapConfigurationSettings();
