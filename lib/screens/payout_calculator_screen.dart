@@ -41,14 +41,38 @@ class PayoutCalculatorScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: () => payoutProvider.resetAllPayouts(),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reset All'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => payoutProvider.resetAllPayouts(),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Reset All'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    CheckboxListTile(
+                      title: const Text(
+                        'Billionaire Bailout',
+                        style: TextStyle(fontWeight: FontWeight.w500),
                       ),
+                      subtitle: const Text(
+                        'Mansion properties do NOT add to the payout',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      value: payoutProvider.billionaireBailout,
+                      onChanged: (value) {
+                        if (value != null) {
+                          payoutProvider.setBillionaireBailout(value);
+                        }
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
                     ),
                   ],
                 ),
@@ -88,7 +112,10 @@ class _StormPayoutCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final payoutProvider = Provider.of<PayoutCalculatorProvider>(context);
     final trackerProvider = Provider.of<PolicyTrackerProvider>(context);
-    final stormTotal = trackerProvider.getStormTotal(storm);
+    final stormTotal = payoutProvider.billionaireBailout
+        ? (trackerProvider.getPolicyCount(storm, PropertyType.house) +
+           trackerProvider.getPolicyCount(storm, PropertyType.mobileHome))
+        : trackerProvider.getStormTotal(storm);
     final selectedPayout = payoutProvider.getSelectedPayout(storm);
     final payoutOptions = PolicyData.stormPayouts[storm] ?? [0];
     final stormColor = PolicyData.stormColors[storm] ?? Colors.grey;
