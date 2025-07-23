@@ -1,9 +1,0 @@
-{
-  "name": "Stacked Together",
-  "filename": "stacked_together.json",
-  "description": "All mansions and mobile homes concentrated in two randomly selected storm types.",
-  "specialMode": "stackedTogether",
-  "acceptableStormDifference": 50,
-  "mansionWeights": {},
-  "mobileHomeWeights": {}
-}

@@ -29,7 +29,6 @@ class MapConfigurationProvider extends ChangeNotifier {
         'coastal_elites.json',
         'northward_migration.json',
         'los_palacios.json',
-        'stacked_together.json',
         'stacked_apart.json',
       ];
 

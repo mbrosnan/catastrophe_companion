@@ -7,7 +7,8 @@
       "Bash(flutter run:*)",
       "Bash(mkdir:*)",
       "Bash(dart analyze:*)",
-      "Bash(scp:*)"
+      "Bash(scp:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
