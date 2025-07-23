@@ -7,7 +7,7 @@ class PolicyTrackerProvider extends ChangeNotifier {
   final Set<StormType> _shownAgentOfYearPopups = {};
   
   static const int growthTargetThreshold = 2;
-  static const int agentOfYearThreshold = 7;
+  static const int agentOfYearThreshold = 6;
 
   PolicyTrackerProvider() {
     // Initialize all policy counts to 0
