@@ -26,6 +26,12 @@ class PayoutCalculatorProvider extends ChangeNotifier {
 
   void setSelectedPayout(StormType storm, int value) {
     _selectedPayouts[storm] = value;
+    
+    // If setting Hurricane-Other, automatically set Hurricane-Florida to double
+    if (storm == StormType.hurricaneOther) {
+      _selectedPayouts[StormType.hurricaneFlorida] = value * 2;
+    }
+    
     notifyListeners();
   }
 

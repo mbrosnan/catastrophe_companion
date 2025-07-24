@@ -185,48 +185,81 @@ class _StormPayoutCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: selectedPayout,
-                    decoration: InputDecoration(
-                      labelText: 'Payout per policy',
-                      labelStyle: TextStyle(
-                        color: textColor,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: hasCustomBackground 
-                              ? backgroundColor!.withOpacity(0.8)
-                              : stormColor.withOpacity(0.5),
+                  child: storm == StormType.hurricaneFlorida
+                      ? Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: hasCustomBackground 
+                                  ? backgroundColor!.withOpacity(0.8)
+                                  : stormColor.withOpacity(0.5),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Payout per policy',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '\$$selectedPayout (Auto: 2x Hurricane-Other)',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : DropdownButtonFormField<int>(
+                          value: selectedPayout,
+                          decoration: InputDecoration(
+                            labelText: 'Payout per policy',
+                            labelStyle: TextStyle(
+                              color: textColor,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: hasCustomBackground 
+                                    ? backgroundColor!.withOpacity(0.8)
+                                    : stormColor.withOpacity(0.5),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: textColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          items: payoutOptions.map((value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: Text('\$$value'),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              payoutProvider.setSelectedPayout(storm, value);
+                            }
+                          },
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: textColor,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    items: payoutOptions.map((value) {
-                      return DropdownMenuItem(
-                        value: value,
-                        child: Text('\$$value'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        payoutProvider.setSelectedPayout(storm, value);
-                      }
-                    },
-                  ),
                 ),
                 const SizedBox(width: 16),
                 Column(
