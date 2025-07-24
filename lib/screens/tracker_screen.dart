@@ -123,12 +123,15 @@ class _StormSection extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
+      color: hasCustomBackground ? backgroundColor!.withOpacity(0.3) : null,
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: containerColor,
+              color: hasCustomBackground 
+                  ? backgroundColor 
+                  : stormColor.withOpacity(0.2),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),

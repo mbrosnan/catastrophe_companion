@@ -129,6 +129,7 @@ class _StormPayoutCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: hasCustomBackground ? backgroundColor!.withOpacity(0.3) : null,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
