@@ -17,6 +17,7 @@ class InsolvencyAlgorithm {
   static InsolvencyResult calculate({
     required int playerMoney,
     required Map<StormType, int> propertyCount,
+    int? earthquakeSeverity,
   }) {
     // Convert property counts to array format expected by algorithm
     final propertyCounts = [
@@ -45,7 +46,10 @@ class InsolvencyAlgorithm {
     // Get storm severities from PolicyData
     final stormSeverities = [
       PolicyData.stormSeverityD6[StormType.snow]!,
-      PolicyData.stormSeverityD6[StormType.earthquake]!,
+      // Use custom earthquake severity if provided, otherwise use default
+      earthquakeSeverity != null 
+          ? List.filled(6, earthquakeSeverity) 
+          : PolicyData.stormSeverityD6[StormType.earthquake]!,
       PolicyData.stormSeverityD6[StormType.hurricaneOther]!,
       PolicyData.stormSeverityD6[StormType.flood]!,
       PolicyData.stormSeverityD6[StormType.fire]!,

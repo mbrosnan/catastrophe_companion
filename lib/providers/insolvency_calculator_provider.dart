@@ -8,14 +8,21 @@ class InsolvencyCalculatorProvider extends ChangeNotifier {
   double _insolvencyPercentage = 0;
   Map<int, double> _payoutDistribution = {};
   double _expectedPayout = 0;
+  int? _earthquakeSeverity;
 
   double get currentMoney => _currentMoney;
   double get insolvencyPercentage => _insolvencyPercentage;
   Map<int, double> get payoutDistribution => _payoutDistribution;
   double get expectedPayout => _expectedPayout;
+  int? get earthquakeSeverity => _earthquakeSeverity;
 
   void setCurrentMoney(double money) {
     _currentMoney = money;
+    notifyListeners();
+  }
+
+  void setEarthquakeSeverity(int? severity) {
+    _earthquakeSeverity = severity;
     notifyListeners();
   }
 
@@ -30,6 +37,7 @@ class InsolvencyCalculatorProvider extends ChangeNotifier {
     final result = InsolvencyAlgorithm.calculate(
       playerMoney: _currentMoney.toInt(),
       propertyCount: propertyCount,
+      earthquakeSeverity: _earthquakeSeverity,
     );
 
     _insolvencyPercentage = result.insolvencyProbability;

@@ -65,7 +65,13 @@ class CardsScreen extends StatelessWidget {
                   // Celebrity Endorsements Section
                   _buildSectionHeader('Celebrity Endorsements', Icons.star),
                   ...CardsProvider.allCards
-                      .where((card) => !card.isAgent)
+                      .where((card) => !card.isAgent && card.name != 'Loan')
+                      .map((card) => _CardTile(card: card)),
+                  const SizedBox(height: 16),
+                  // Other Cards Section
+                  _buildSectionHeader('Other Cards', Icons.credit_card),
+                  ...CardsProvider.allCards
+                      .where((card) => card.name == 'Loan')
                       .map((card) => _CardTile(card: card)),
                   const SizedBox(height: 16),
                 ],
@@ -130,9 +136,16 @@ class _CardTile extends StatelessWidget {
         }
       }
     } else if (!card.isAgent) {
-      iconColor = Colors.amber;
-      if (isChecked) {
-        tileColor = Colors.amber.withOpacity(0.1);
+      if (card.name == 'Loan') {
+        iconColor = Colors.red;
+        if (isChecked) {
+          tileColor = Colors.red.withOpacity(0.1);
+        }
+      } else {
+        iconColor = Colors.amber;
+        if (isChecked) {
+          tileColor = Colors.amber.withOpacity(0.1);
+        }
       }
     }
 
@@ -141,7 +154,52 @@ class _CardTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: CheckboxListTile(
         value: isChecked,
-        onChanged: (_) => cardsProvider.toggleCard(card.name),
+        onChanged: (_) async {
+          if (card.name == 'Loan') {
+            if (!isChecked) {
+              // Show VP selection dialog when checking the Loan card
+              final vpCost = await showDialog<int>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => _LoanVPDialog(),
+              );
+              if (vpCost != null) {
+                cardsProvider.setLoanVPCost(vpCost);
+                cardsProvider.toggleCard(card.name);
+              }
+            } else {
+              // Show confirmation dialog when unchecking the Loan card
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Remove Loan?'),
+                  content: Text(
+                    'Are you sure you want to remove the Loan card? You currently owe ${cardsProvider.loanVPCost} VP.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Remove',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                cardsProvider.toggleCard(card.name);
+                cardsProvider.setLoanVPCost(0);
+              }
+            }
+          } else {
+            cardsProvider.toggleCard(card.name);
+          }
+        },
         title: Text(
           card.name,
           style: TextStyle(
@@ -150,9 +208,13 @@ class _CardTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${card.victoryPoints} Victory Points',
+          card.name == 'Loan' 
+              ? '${-cardsProvider.loanVPCost} Victory Points'
+              : '${card.victoryPoints} Victory Points',
           style: TextStyle(
-            color: isChecked ? Colors.green[700] : Colors.grey[600],
+            color: card.name == 'Loan' 
+                ? (isChecked ? Colors.red[700] : Colors.grey[600])
+                : (isChecked ? Colors.green[700] : Colors.grey[600]),
             fontWeight: isChecked ? FontWeight.w500 : FontWeight.normal,
           ),
         ),
@@ -161,7 +223,7 @@ class _CardTile extends StatelessWidget {
               ? (card.name == 'Diversified Agent of the Year' 
                   ? Icons.diversity_3 
                   : _getStormIcon(card.agentStorm!))
-              : Icons.star,
+              : (card.name == 'Loan' ? Icons.account_balance : Icons.star),
           color: iconColor,
           size: 32,
         ),
@@ -189,5 +251,73 @@ class _CardTile extends StatelessWidget {
       case StormType.tornado:
         return Icons.air;
     }
+  }
+}
+
+class _LoanVPDialog extends StatefulWidget {
+  @override
+  _LoanVPDialogState createState() => _LoanVPDialogState();
+}
+
+class _LoanVPDialogState extends State<_LoanVPDialog> {
+  int _selectedVP = 5;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select Loan Amount'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'How many Victory Points do you want to borrow?',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'You will owe: ${_selectedVP} VP',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.red[700],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Slider(
+            value: _selectedVP.toDouble(),
+            min: 0,
+            max: 10,
+            divisions: 10,
+            label: '$_selectedVP VP',
+            onChanged: (value) {
+              setState(() {
+                _selectedVP = value.toInt();
+              });
+            },
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text('0 VP'),
+              Text('10 VP'),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(_selectedVP),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('Take Loan'),
+        ),
+      ],
+    );
   }
 }

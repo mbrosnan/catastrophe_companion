@@ -17,6 +17,7 @@ class VictoryCard {
 
 class CardsProvider extends ChangeNotifier {
   final Map<String, bool> _cardStates = {};
+  int _loanVPCost = 0;
   
   static final List<VictoryCard> allCards = [
     // Storm Agent Cards
@@ -76,6 +77,10 @@ class CardsProvider extends ChangeNotifier {
       name: 'Minor Celebrity Endorsement',
       victoryPoints: 5,
     ),
+    const VictoryCard(
+      name: 'Loan',
+      victoryPoints: 0, // VP will be handled separately
+    ),
   ];
 
   CardsProvider() {
@@ -89,6 +94,13 @@ class CardsProvider extends ChangeNotifier {
     return _cardStates[cardName] ?? false;
   }
 
+  int get loanVPCost => _loanVPCost;
+
+  void setLoanVPCost(int cost) {
+    _loanVPCost = cost;
+    notifyListeners();
+  }
+
   void toggleCard(String cardName) {
     _cardStates[cardName] = !(_cardStates[cardName] ?? false);
     notifyListeners();
@@ -98,7 +110,11 @@ class CardsProvider extends ChangeNotifier {
     int total = 0;
     for (final card in allCards) {
       if (_cardStates[card.name] ?? false) {
-        total += card.victoryPoints;
+        if (card.name == 'Loan') {
+          total -= _loanVPCost;
+        } else {
+          total += card.victoryPoints;
+        }
       }
     }
     return total;

@@ -54,7 +54,7 @@ class PolicyData {
 
   static const Map<StormType, List<int>> stormPayouts = {
     StormType.snow: [0, 5, 10, 15, 20],
-    StormType.earthquake: [0, 5, 10, 15, 20, 25, 30],
+    StormType.earthquake: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     StormType.hurricaneOther: [0, 5, 15, 25, 30, 35, 40],
     StormType.hurricaneFlorida: [0, 10, 30, 50, 60, 70, 80],
     StormType.flood: [0, 10, 15, 20, 25, 30],
@@ -77,7 +77,7 @@ class PolicyData {
 
   // Severity die values (D6 outcomes)
   static const Map<StormType, List<int>> stormSeverityD6 = {
-    StormType.snow: [5, 5, 5, 10, 15, 20],
+    StormType.snow: [5, 5, 5, 10, 10, 25],
     StormType.earthquake: [5, 10, 15, 20, 25, 30],
     StormType.hurricaneOther: [5, 15, 25, 30, 35, 40],
     StormType.hurricaneFlorida: [10, 30, 50, 60, 70, 80],
@@ -88,12 +88,12 @@ class PolicyData {
   };
 
   static final Map<PolicyKey, PolicyValue> policyValues = {
-    PolicyKey(StormType.snow, PropertyType.mansion): const PolicyValue(premium: 10, victoryPoints: -3),
-    PolicyKey(StormType.snow, PropertyType.house): const PolicyValue(premium: 8, victoryPoints: 4),
-    PolicyKey(StormType.snow, PropertyType.mobileHome): const PolicyValue(premium: 4, victoryPoints: 7),
-    PolicyKey(StormType.earthquake, PropertyType.mansion): const PolicyValue(premium: 4, victoryPoints: 0),
-    PolicyKey(StormType.earthquake, PropertyType.house): const PolicyValue(premium: 3, victoryPoints: 3),
-    PolicyKey(StormType.earthquake, PropertyType.mobileHome): const PolicyValue(premium: 2, victoryPoints: 4),
+    PolicyKey(StormType.snow, PropertyType.mansion): const PolicyValue(premium: 9, victoryPoints: -2),
+    PolicyKey(StormType.snow, PropertyType.house): const PolicyValue(premium: 7, victoryPoints: 4),
+    PolicyKey(StormType.snow, PropertyType.mobileHome): const PolicyValue(premium: 4, victoryPoints: 6),
+    PolicyKey(StormType.earthquake, PropertyType.mansion): const PolicyValue(premium: 6, victoryPoints: -1),
+    PolicyKey(StormType.earthquake, PropertyType.house): const PolicyValue(premium: 5, victoryPoints: 3),
+    PolicyKey(StormType.earthquake, PropertyType.mobileHome): const PolicyValue(premium: 3, victoryPoints: 4),
     PolicyKey(StormType.hurricaneOther, PropertyType.mansion): const PolicyValue(premium: 9, victoryPoints: -2),
     PolicyKey(StormType.hurricaneOther, PropertyType.house): const PolicyValue(premium: 7, victoryPoints: 4),
     PolicyKey(StormType.hurricaneOther, PropertyType.mobileHome): const PolicyValue(premium: 4, victoryPoints: 6),
