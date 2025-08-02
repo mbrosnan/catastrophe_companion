@@ -57,5 +57,3 @@ In the cards tab, add a "Loan" card.  When pressed, this shows a popup.  The pop
 # 11. Payout Tab - Hurricane FL
 
 In the payout tab, Hurricane FL should still be shown, but the severity should always be double the selected severity of the hurricane-other.  Essentially make it an unmodifiable text instead of a dropdown.
-
-# 
