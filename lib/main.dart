@@ -6,6 +6,7 @@ import 'providers/cards_provider.dart';
 import 'providers/insolvency_calculator_provider.dart';
 import 'providers/map_configuration_provider.dart';
 import 'screens/tracker_screen.dart';
+import 'screens/tracker_v1_screen.dart';
 import 'screens/payout_calculator_screen.dart';
 import 'screens/cards_screen.dart';
 import 'screens/insolvency_calculator_screen.dart';
@@ -51,21 +52,17 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const TrackerScreen(),
-    const PayoutCalculatorScreen(),
-    const CardsScreen(),
-    const InsolvencyCalculatorScreen(),
-    const MapConfigurationScreen(),
-    const SettingsScreen(),
+    const TrackerScreen(),      // Original tracker
+    const TrackerV1Screen(),    // New icon grid tracker
+    const TrackerScreen(),      // Placeholder for v2
+    const TrackerScreen(),      // Placeholder for v3
   ];
 
   final List<String> _titles = [
-    'Policy Tracker',
-    'Payout Calculator',
-    'Victory Cards',
-    'Insolvency Calculator',
-    'Map Configuration',
-    'Settings',
+    'Tracker - Original',
+    'Tracker - V1',
+    'Tracker - V2',
+    'Tracker - V3',
   ];
 
   @override
@@ -86,28 +83,20 @@ class _MainScreenState extends State<MainScreen> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Tracker',
+            icon: Icon(Icons.looks_one),
+            label: 'Original',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calculate),
-            label: 'Payout',
+            icon: Icon(Icons.looks_two),
+            label: 'V1',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard),
-            label: 'Cards',
+            icon: Icon(Icons.looks_3),
+            label: 'V2',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.warning),
-            label: 'Insolvency',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Map',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.looks_4),
+            label: 'V3',
           ),
         ],
       ),

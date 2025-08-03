@@ -8,7 +8,8 @@
       "Bash(mkdir:*)",
       "Bash(dart analyze:*)",
       "Bash(scp:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(/mnt/c/Users/mitch/dev/flutter/bin/flutter analyze)"
     ],
     "deny": []
   }
