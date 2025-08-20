@@ -19,26 +19,26 @@ class TrackerScreen extends StatelessWidget {
           children: [
             // Totals Card
             Card(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Total Premium',
+                          'Premium',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
                         Text(
                           '\$${tracker.getTotalPremium()}',
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
@@ -46,22 +46,12 @@ class TrackerScreen extends StatelessWidget {
                       ],
                     ),
                     Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Total Victory Points',
+                          'Policy Tracker',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$totalVP',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: totalVP >= 0
-                                ? Colors.blue
-                                : Colors.red,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -69,10 +59,32 @@ class TrackerScreen extends StatelessWidget {
                           Text(
                             '($policyVP + $cardVP cards)',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               color: Colors.grey[600],
                             ),
                           ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Victory Points',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '$totalVP',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: totalVP >= 0
+                                ? Colors.blue
+                                : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                   ],

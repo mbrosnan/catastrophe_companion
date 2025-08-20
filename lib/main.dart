@@ -72,7 +72,11 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(_titles[_selectedIndex]),
+        title: Text(
+          _titles[_selectedIndex],
+          style: const TextStyle(fontSize: 18),
+        ),
+        toolbarHeight: 40,
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

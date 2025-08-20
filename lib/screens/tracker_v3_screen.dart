@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/policy_tracker_provider.dart';
+import '../providers/cards_provider.dart';
 import '../models/policy_data.dart';
 
 class TrackerV3Screen extends StatefulWidget {
@@ -55,39 +56,73 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   }
 
   Widget _buildHeader(BuildContext context, PolicyTrackerProvider provider) {
+    final cardsProvider = context.watch<CardsProvider>();
+    final policyVP = provider.getTotalVictoryPoints();
+    final cardVP = cardsProvider.getTotalCardVictoryPoints();
+    final totalVP = policyVP + cardVP;
+    
     return Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text(
-            'Policy Tracker',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                children: [
-                  const Text('Premium'),
-                  Text(
-                    '\$${provider.getTotalPremium()}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              const Text(
+                'Premium',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              Column(
-                children: [
-                  const Text('VP'),
-                  Text(
-                    '${provider.getTotalVictoryPoints()}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+              Text(
+                '\$${provider.getTotalPremium()}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Policy Tracker',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (cardVP > 0)
+                Text(
+                  '($policyVP + $cardVP cards)',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey[600],
                   ),
-                ],
+                ),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Victory Points',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '$totalVP',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: totalVP >= 0 ? Colors.blue : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -170,23 +205,47 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Icon(
-              _getStormIcon(stormType),
-              color: _getStormColor(stormType),
-              size: 28,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _getStormIcon(stormType),
+                    color: _getStormColor(stormType),
+                    size: 28,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label ?? _getStormName(stormType),
+                    style: const TextStyle(fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              label ?? _getStormName(stormType),
-              style: const TextStyle(fontSize: 11),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              '$totalPolicies Policies',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: _getStormColor(stormType),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    totalPolicies.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -224,23 +283,47 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Icon(
-              Icons.cyclone,
-              color: Colors.purple.shade300,
-              size: 28,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.cyclone,
+                    color: Colors.purple.shade300,
+                    size: 28,
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Hurricane',
+                    style: TextStyle(fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            const Text(
-              'Hurricane',
-              style: TextStyle(fontSize: 11),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              '$totalPolicies Policies',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade300,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    totalPolicies.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -271,10 +354,18 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [0.5, 0.5],
+                    colors: [
+                      Colors.red.withOpacity(0.2),  // Fire color
+                      Color(0xFF6D4C41).withOpacity(0.2), // Earthquake color - more brown
+                    ],
+                  ),
                   border: Border.all(
                     color: (isStateSelection && isCaliforniaSelected) 
-                        ? Colors.green : Colors.grey.shade300,
+                        ? Colors.orange.shade700 : Colors.grey.shade300,
                     width: (isStateSelection && isCaliforniaSelected) ? 3 : 1,
                   ),
                   borderRadius: const BorderRadius.only(
@@ -282,11 +373,18 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                     bottomLeft: Radius.circular(8),
                   ),
                 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('CA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text('Fire/EQ', style: TextStyle(fontSize: 9)),
+                    const Text('CA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.local_fire_department, size: 12, color: Colors.red),
+                        const Text('/', style: TextStyle(fontSize: 9)),
+                        Icon(Icons.landscape, size: 12, color: Color(0xFF6D4C41)),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -310,10 +408,18 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    stops: [0.5, 0.5],
+                    colors: [
+                      Colors.purple.shade300.withOpacity(0.2), // Hurricane color
+                      Colors.grey.withOpacity(0.2),            // Tornado color
+                    ],
+                  ),
                   border: Border.all(
                     color: (isStateSelection && !isCaliforniaSelected) 
-                        ? Colors.orange : Colors.grey.shade300,
+                        ? Colors.purple.shade400 : Colors.grey.shade300,
                     width: (isStateSelection && !isCaliforniaSelected) ? 3 : 1,
                   ),
                   borderRadius: const BorderRadius.only(
@@ -321,11 +427,18 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                     bottomRight: Radius.circular(8),
                   ),
                 ),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('TX', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text('Tor/Hur', style: TextStyle(fontSize: 9)),
+                    const Text('TX', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cyclone, size: 12, color: Colors.purple.shade300),
+                        const Text('/', style: TextStyle(fontSize: 9)),
+                        Icon(Icons.air, size: 12, color: Colors.grey),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -380,18 +493,38 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            Center(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              '$totalCount Policies',
-              style: const TextStyle(fontSize: 11),
-              textAlign: TextAlign.center,
+            Positioned(
+              right: 8,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      totalCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -597,7 +730,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       case StormType.snow:
         return Colors.blue.shade200;
       case StormType.earthquake:
-        return Colors.brown;
+        return Color(0xFF6D4C41);  // More distinct brown color
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
       case StormType.flood:
