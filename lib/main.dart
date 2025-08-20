@@ -54,17 +54,21 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const TrackerScreen(),      // Original tracker
-    const TrackerV1Screen(),    // New icon grid tracker
-    const TrackerV2Screen(),    // Map-based tracker
-    const TrackerV3Screen(),    // Idea 3 tracker with grid selection
+    const TrackerV3Screen(),              // Use V3 as the main tracker
+    const PayoutCalculatorScreen(),
+    const CardsScreen(),
+    const InsolvencyCalculatorScreen(),
+    const MapConfigurationScreen(),
+    const SettingsScreen(),
   ];
 
   final List<String> _titles = [
-    'Tracker - Original',
-    'Tracker - V1',
-    'Tracker - V2',
-    'Tracker - V3',
+    'Tracker',
+    'Payout Calculator',
+    'Cards',
+    'Insolvency Calculator',
+    'Map Configuration',
+    'Settings',
   ];
 
   @override
@@ -87,22 +91,32 @@ class _MainScreenState extends State<MainScreen> {
             _selectedIndex = index;
           });
         },
+        selectedFontSize: 12,
+        unselectedFontSize: 11,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.looks_one),
-            label: 'Original',
+            icon: Icon(Icons.policy),
+            label: 'Tracker',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.looks_two),
-            label: 'V1',
+            icon: Icon(Icons.calculate),
+            label: 'Payout',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.looks_3),
-            label: 'V2',
+            icon: Icon(Icons.style),
+            label: 'Cards',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.looks_4),
-            label: 'V3',
+            icon: Icon(Icons.warning),
+            label: 'Insolvency',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),

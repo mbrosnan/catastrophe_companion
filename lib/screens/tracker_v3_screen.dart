@@ -21,6 +21,9 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   Widget build(BuildContext context) {
     return Consumer<PolicyTrackerProvider>(
       builder: (context, provider, child) {
+        final size = MediaQuery.of(context).size;
+        final isPortrait = size.height > size.width;
+        
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -29,29 +32,72 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 _buildHeader(context, provider),
                 const Divider(height: 1),
                 
-                // Storm type grid
+                // Main content area - different layout based on orientation
                 Expanded(
-                  child: Column(
-                    children: [
-                      _buildStormGrid(provider),
-                      const Divider(height: 32, thickness: 1),
-                      
-                      // Property type selection
-                      _buildPropertyTypeRow(),
-                      const Divider(height: 32, thickness: 1),
-                      
-                      // Add/Remove buttons
-                      _buildActionButtons(provider),
-                      
-                      const Spacer(),
-                    ],
-                  ),
+                  child: isPortrait
+                      ? _buildPortraitLayout(provider)
+                      : _buildLandscapeLayout(provider),
                 ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPortraitLayout(PolicyTrackerProvider provider) {
+    return Column(
+      children: [
+        _buildStormGrid(provider),
+        const Divider(height: 32, thickness: 1),
+        
+        // Property type selection
+        _buildPropertyTypeRow(),
+        const Divider(height: 32, thickness: 1),
+        
+        // Add/Remove buttons
+        _buildActionButtons(provider),
+        
+        const Spacer(),
+      ],
+    );
+  }
+
+  Widget _buildLandscapeLayout(PolicyTrackerProvider provider) {
+    return Row(
+      children: [
+        // Storm grid on the left
+        Expanded(
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildStormGridLandscape(provider),
+          ),
+        ),
+        
+        const VerticalDivider(width: 1),
+        
+        // Property types in the middle (vertical)
+        SizedBox(
+          width: 120,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildPropertyTypeColumn(provider),
+          ),
+        ),
+        
+        const VerticalDivider(width: 1),
+        
+        // Add/Remove buttons on the right
+        SizedBox(
+          width: 120,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _buildActionButtonsVertical(provider),
+          ),
+        ),
+      ],
     );
   }
 
@@ -621,6 +667,120 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStormGridLandscape(PolicyTrackerProvider provider) {
+    // Same as portrait grid but might adjust spacing
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // First row: EQ, Snow, Hurricane
+        Row(
+          children: [
+            Expanded(child: _buildStormButton(StormType.earthquake, provider)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildStormButton(StormType.snow, provider)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildHurricaneButton(provider)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        
+        // Second row: Flood, Fire, Hail
+        Row(
+          children: [
+            Expanded(child: _buildStormButton(StormType.flood, provider)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildStormButton(StormType.fire, provider)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildStormButton(StormType.hail, provider)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        
+        // Third row: Tornado, Hurricane FL, TX/CA
+        Row(
+          children: [
+            Expanded(child: _buildStormButton(StormType.tornado, provider)),
+            const SizedBox(width: 8),
+            Expanded(child: _buildStormButton(StormType.hurricaneFlorida, provider, label: 'Hurricane\nFlorida')),
+            const SizedBox(width: 8),
+            Expanded(child: _buildStateButtons()),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPropertyTypeColumn(PolicyTrackerProvider provider) {
+    // Property types arranged vertically for landscape
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(child: _buildPropertyButton(PropertyType.mobileHome, 'Mobile', provider)),
+        const SizedBox(height: 8),
+        Expanded(child: _buildPropertyButton(PropertyType.house, 'House', provider)),
+        const SizedBox(height: 8),
+        Expanded(child: _buildPropertyButton(PropertyType.mansion, 'Mansion', provider)),
+      ],
+    );
+  }
+
+  Widget _buildActionButtonsVertical(PolicyTrackerProvider provider) {
+    // Add on top, Remove on bottom for landscape
+    return Column(
+      children: [
+        // Add button (larger, takes up 60% of height)
+        Expanded(
+          flex: 3,
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _handleAdd(provider),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, size: 32),
+                  SizedBox(height: 4),
+                  Text(
+                    'Add',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        // Remove button (smaller, takes up 40% of height)
+        Expanded(
+          flex: 2,
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _handleRemove(provider),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.remove, size: 24),
+                  SizedBox(height: 4),
+                  Text('Remove'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
