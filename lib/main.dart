@@ -7,6 +7,8 @@ import 'providers/insolvency_calculator_provider.dart';
 import 'providers/map_configuration_provider.dart';
 import 'screens/tracker_screen.dart';
 import 'screens/tracker_v1_screen.dart';
+import 'screens/tracker_v2_screen.dart';
+import 'screens/tracker_v3_screen.dart';
 import 'screens/payout_calculator_screen.dart';
 import 'screens/cards_screen.dart';
 import 'screens/insolvency_calculator_screen.dart';
@@ -54,8 +56,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const TrackerScreen(),      // Original tracker
     const TrackerV1Screen(),    // New icon grid tracker
-    const TrackerScreen(),      // Placeholder for v2
-    const TrackerScreen(),      // Placeholder for v3
+    const TrackerV2Screen(),    // Map-based tracker
+    const TrackerV3Screen(),    // Idea 3 tracker with grid selection
   ];
 
   final List<String> _titles = [

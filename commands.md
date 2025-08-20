@@ -15,3 +15,6 @@ flutter clean
 
 flutter build appbundle --obfuscate `
     --split-debug-info=build\symbols
+
+
+deploy to web: python deploy.py

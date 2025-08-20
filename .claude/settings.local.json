@@ -11,6 +11,7 @@
       "Bash(rm:*)",
       "Bash(/mnt/c/Users/mitch/dev/flutter/bin/flutter analyze)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="500" viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Continental US States - Simplified but recognizable shapes -->
+  
+  <!-- West Coast -->
+  <path id="WA" d="M 60 60 L 120 60 L 120 100 L 100 110 L 60 100 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  <path id="OR" d="M 60 100 L 100 110 L 120 100 L 120 140 L 60 140 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  <path id="CA" d="M 60 140 L 120 140 L 110 200 L 100 240 L 70 220 L 60 180 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  
+  <!-- Mountain West -->
+  <path id="ID" d="M 120 60 L 170 60 L 170 140 L 120 140 L 120 100 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  <path id="NV" d="M 120 140 L 170 140 L 170 190 L 150 200 L 110 200 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  <path id="UT" d="M 170 140 L 220 140 L 220 190 L 170 190 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="AZ" d="M 110 200 L 150 200 L 170 190 L 170 250 L 110 250 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  
+  <!-- Northern Plains -->
+  <path id="MT" d="M 170 60 L 280 60 L 280 110 L 170 110 Z" fill="#ff6b6b" stroke="#333" stroke-width="1" />
+  <path id="ND" d="M 280 60 L 350 60 L 350 110 L 280 110 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="MN" d="M 350 60 L 400 60 L 400 130 L 380 140 L 350 130 L 350 110 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="WI" d="M 400 80 L 450 80 L 450 140 L 430 150 L 400 130 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="MI" d="M 450 80 L 500 80 L 500 150 L 480 160 L 450 140 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  
+  <!-- Great Plains -->
+  <path id="WY" d="M 170 110 L 280 110 L 280 160 L 170 160 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="SD" d="M 280 110 L 350 110 L 350 160 L 280 160 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="NE" d="M 280 160 L 350 160 L 350 200 L 280 200 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="KS" d="M 280 200 L 350 200 L 350 240 L 280 240 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="CO" d="M 220 140 L 280 140 L 280 200 L 220 200 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  
+  <!-- Southwest -->
+  <path id="NM" d="M 170 200 L 220 200 L 220 280 L 170 280 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="TX" d="M 220 240 L 350 240 L 350 340 L 320 360 L 280 360 L 250 340 L 220 320 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="OK" d="M 280 200 L 350 200 L 350 240 L 280 240 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  
+  <!-- Midwest -->
+  <path id="IA" d="M 350 140 L 400 140 L 400 180 L 350 180 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="MO" d="M 350 180 L 400 180 L 410 220 L 390 240 L 350 240 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="AR" d="M 350 240 L 390 240 L 400 280 L 350 280 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="LA" d="M 350 280 L 400 280 L 390 320 L 360 340 L 350 320 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  
+  <!-- Upper Midwest -->
+  <path id="IL" d="M 400 140 L 440 140 L 440 220 L 410 220 L 400 180 Z" fill="#808080" stroke="#333" stroke-width="1" />
+  <path id="IN" d="M 440 150 L 480 150 L 480 210 L 440 210 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="OH" d="M 480 150 L 530 150 L 540 180 L 530 210 L 480 210 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  
+  <!-- Upper South -->
+  <path id="KY" d="M 440 210 L 530 210 L 520 240 L 440 240 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="TN" d="M 400 240 L 520 240 L 510 270 L 400 270 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="MS" d="M 400 280 L 440 280 L 440 340 L 400 340 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  <path id="AL" d="M 440 280 L 480 280 L 480 340 L 440 340 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  
+  <!-- Southeast -->
+  <path id="WV" d="M 530 180 L 570 180 L 570 220 L 540 210 L 530 210 Z" fill="#ffd93d" stroke="#333" stroke-width="1" />
+  <path id="VA" d="M 570 180 L 630 180 L 640 210 L 620 220 L 570 220 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  <path id="NC" d="M 520 240 L 640 240 L 650 260 L 640 280 L 520 270 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  <path id="SC" d="M 520 270 L 640 280 L 630 310 L 520 310 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  <path id="GA" d="M 480 280 L 520 280 L 520 340 L 480 340 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  <path id="FL" d="M 480 340 L 520 340 L 540 380 L 530 420 L 500 430 L 470 400 L 470 360 Z" fill="#9370db" stroke="#333" stroke-width="1" />
+  
+  <!-- Mid-Atlantic -->
+  <path id="MD" d="M 620 210 L 660 210 L 660 230 L 640 230 L 620 220 Z" fill="#4169e1" stroke="#333" stroke-width="1" />
+  <path id="DE" d="M 660 210 L 675 210 L 675 240 L 660 240 Z" fill="#4169e1" stroke="#333" stroke-width="1" />
+  <path id="PA" d="M 540 150 L 640 150 L 640 210 L 570 210 L 540 180 Z" fill="#4169e1" stroke="#333" stroke-width="1" />
+  <path id="NJ" d="M 660 180 L 680 180 L 680 230 L 660 210 Z" fill="#4169e1" stroke="#333" stroke-width="1" />
+  <path id="NY" d="M 540 80 L 640 80 L 660 120 L 640 150 L 540 150 L 530 120 Z" fill="#4169e1" stroke="#333" stroke-width="1" />
+  
+  <!-- New England -->
+  <path id="VT" d="M 640 80 L 660 80 L 660 120 L 640 120 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="NH" d="M 660 80 L 680 80 L 680 120 L 660 120 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="ME" d="M 680 60 L 720 60 L 720 120 L 680 120 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="MA" d="M 660 120 L 710 120 L 710 140 L 660 140 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="CT" d="M 640 140 L 680 140 L 680 160 L 640 160 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  <path id="RI" d="M 680 140 L 695 140 L 695 155 L 680 155 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+  
+  <!-- Alaska and Hawaii -->
+  <g id="AK">
+    <path d="M 60 380 L 140 380 L 150 400 L 140 440 L 100 450 L 70 440 L 50 400 Z" fill="#87ceeb" stroke="#333" stroke-width="1" />
+    <text x="100" y="415" text-anchor="middle" font-size="14" fill="#333">AK</text>
+  </g>
+  
+  <g id="HI">
+    <circle cx="200" cy="420" r="5" fill="#ff6b6b" stroke="#333" stroke-width="1"/>
+    <circle cx="210" cy="425" r="5" fill="#ff6b6b" stroke="#333" stroke-width="1"/>
+    <circle cx="220" cy="420" r="5" fill="#ff6b6b" stroke="#333" stroke-width="1"/>
+    <circle cx="230" cy="415" r="5" fill="#ff6b6b" stroke="#333" stroke-width="1"/>
+    <text x="215" y="445" text-anchor="middle" font-size="12" fill="#333">HI</text>
+  </g>
+  
+  <!-- DC -->
+  <circle id="DC" cx="650" cy="220" r="5" fill="#4169e1" stroke="#333" stroke-width="2"/>
+</svg>

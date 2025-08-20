@@ -35,6 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   provider: ^6.1.1
+  flutter_svg: ^2.0.10
+  syncfusion_flutter_maps: ^26.2.14
+  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +64,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/profiles/
+    - assets/us_states_map.svg
+    - assets/catastrophe_regions_rev1.svg
+    - assets/catastrophe_regions_rev2.svg
+    - assets/catastrophe_regions_clean.svg
+    - assets/catastrophe_regions_simple.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
