@@ -225,6 +225,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 ],
               ),
             ),
+            // Policy count circle (top right)
             Positioned(
               right: 8,
               top: 8,
@@ -247,6 +248,44 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 ),
               ),
             ),
+            // Growth Target indicator (top left)
+            if (provider.hasGrowthTargetCard(stormType))
+              Positioned(
+                left: 4,
+                top: 4,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: _getStormColor(stormType),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.track_changes,  // Bullseye icon
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
+            // Agent of Year indicator (bottom left)
+            if (provider.hasAgentOfYearCard(stormType))
+              Positioned(
+                left: 4,
+                bottom: 4,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: _getStormColor(stormType),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,  // Person in suit icon
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -303,6 +342,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 ],
               ),
             ),
+            // Policy count circle (top right)
             Positioned(
               right: 8,
               top: 8,
@@ -325,6 +365,44 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 ),
               ),
             ),
+            // Growth Target indicator (top left)
+            if (provider.hasGrowthTargetCard(StormType.hurricaneOther))
+              Positioned(
+                left: 4,
+                top: 4,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade300,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.track_changes,  // Bullseye icon
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
+            // Agent of Year indicator (bottom left)
+            if (provider.hasAgentOfYearCard(StormType.hurricaneOther))
+              Positioned(
+                left: 4,
+                bottom: 4,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade300,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,  // Person in suit icon
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -483,8 +561,11 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           selectedPropertyType = isSelected ? null : propertyType;
         });
       },
+      onLongPress: () {
+        _showPropertyBreakdown(context, propertyType, label, provider);
+      },
       child: Container(
-        height: 60,
+        height: 80,  // Increased from 60 to 80 (33% increase)
         decoration: BoxDecoration(
           color: Colors.blue.shade50,
           border: Border.all(
@@ -496,9 +577,20 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
         child: Stack(
           children: [
             Center(
-              child: Text(
-                label,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _getPropertyIcon(propertyType),
+                    color: Colors.blue.shade700,
+                    size: 28,  // Increased from 20 to 28
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ),
             Positioned(
@@ -707,6 +799,67 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
     );
   }
 
+  void _showPropertyBreakdown(BuildContext context, PropertyType propertyType, String label, PolicyTrackerProvider provider) {
+    // Get policy counts for this property type across all storm types
+    List<Widget> policyBreakdown = [];
+    
+    for (final storm in StormType.values) {
+      final count = provider.getPolicyCount(storm, propertyType);
+      if (count > 0) {
+        policyBreakdown.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Icon(
+                  _getStormIcon(storm),
+                  color: _getStormColor(storm),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _getStormName(storm),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                Text(
+                  count.toString(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$label Breakdown'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: policyBreakdown.isEmpty
+                ? [const Text('No policies of this type')]
+                : policyBreakdown,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -773,7 +926,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   IconData _getPropertyIcon(PropertyType propertyType) {
     switch (propertyType) {
       case PropertyType.mobileHome:
-        return Icons.directions_car;
+        return Icons.rv_hookup;  // More appropriate for mobile home
       case PropertyType.house:
         return Icons.home;
       case PropertyType.mansion:
