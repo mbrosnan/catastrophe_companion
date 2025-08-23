@@ -53,7 +53,7 @@ class PolicyData {
   };
 
   static const Map<StormType, List<int>> stormPayouts = {
-    StormType.snow: [0, 5, 10, 15, 20],
+    StormType.snow: [0, 5, 10, 15, 25],
     StormType.earthquake: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     StormType.hurricaneOther: [0, 5, 15, 25, 30, 35, 40],
     StormType.hurricaneFlorida: [0, 10, 30, 50, 60, 70, 80],
