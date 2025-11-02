@@ -52,6 +52,12 @@ class PolicyData {
     PropertyType.mobileHome: 'Mobile Home',
   };
 
+  // NOTE: Game configuration values (payouts, premiums, victory points, etc.)
+  // have been moved to assets/game_config.json and are accessed via GameConfigProvider.
+  // Only UI-related constants (colors, display names) remain here.
+
+  // DEPRECATED: These values are kept for backward compatibility only.
+  // New code should use GameConfigProvider instead.
   static const Map<StormType, List<int>> stormPayouts = {
     StormType.snow: [0, 5, 10, 15, 25],
     StormType.earthquake: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
@@ -63,7 +69,7 @@ class PolicyData {
     StormType.tornado: [0, 25, 30, 35],
   };
 
-  // Storm occurrence probabilities (out of 20 for D20)
+  // DEPRECATED: Use GameConfigProvider.getStormFrequency() instead
   static const Map<StormType, int> stormOccurrenceD20 = {
     StormType.snow: 12,
     StormType.earthquake: 2,
@@ -75,7 +81,7 @@ class PolicyData {
     StormType.tornado: 6,
   };
 
-  // Severity die values (D6 outcomes)
+  // DEPRECATED: Use GameConfigProvider.getStormSeverity() instead
   static const Map<StormType, List<int>> stormSeverityD6 = {
     StormType.snow: [5, 5, 5, 10, 10, 25],
     StormType.earthquake: [5, 10, 15, 20, 25, 30],
@@ -87,6 +93,7 @@ class PolicyData {
     StormType.tornado: [25, 25, 30, 30, 35, 35],
   };
 
+  // DEPRECATED: Use GameConfigProvider.getPremium() and getVictoryPoints() instead
   static final Map<PolicyKey, PolicyValue> policyValues = {
     PolicyKey(StormType.snow, PropertyType.mansion): const PolicyValue(premium: 9, victoryPoints: -2),
     PolicyKey(StormType.snow, PropertyType.house): const PolicyValue(premium: 7, victoryPoints: 4),

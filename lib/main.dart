@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'providers/game_config_provider.dart';
 import 'providers/policy_tracker_provider.dart';
 import 'providers/payout_calculator_provider.dart';
 import 'providers/cards_provider.dart';
 import 'providers/insolvency_calculator_provider.dart';
 import 'providers/map_configuration_provider.dart';
-import 'screens/tracker_screen.dart';
-import 'screens/tracker_v1_screen.dart';
-import 'screens/tracker_v2_screen.dart';
 import 'screens/tracker_v3_screen.dart';
 import 'screens/payout_calculator_screen.dart';
 import 'screens/cards_screen.dart';
@@ -25,10 +23,38 @@ class CatastropheCompanionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => PolicyTrackerProvider()),
-        ChangeNotifierProvider(create: (_) => PayoutCalculatorProvider()),
-        ChangeNotifierProvider(create: (_) => CardsProvider()),
-        ChangeNotifierProvider(create: (_) => InsolvencyCalculatorProvider()),
+        // GameConfigProvider must be first since others depend on it
+        ChangeNotifierProvider(create: (_) => GameConfigProvider()),
+
+        // Other providers now depend on GameConfigProvider
+        ChangeNotifierProxyProvider<GameConfigProvider, PolicyTrackerProvider>(
+          create: (_) => PolicyTrackerProvider(),
+          update: (_, config, tracker) {
+            tracker?.updateGameConfig(config);
+            return tracker ?? PolicyTrackerProvider();
+          },
+        ),
+        ChangeNotifierProxyProvider<GameConfigProvider, PayoutCalculatorProvider>(
+          create: (_) => PayoutCalculatorProvider(),
+          update: (_, config, calculator) {
+            calculator?.updateGameConfig(config);
+            return calculator ?? PayoutCalculatorProvider();
+          },
+        ),
+        ChangeNotifierProxyProvider<GameConfigProvider, CardsProvider>(
+          create: (_) => CardsProvider(),
+          update: (_, config, cards) {
+            cards?.updateGameConfig(config);
+            return cards ?? CardsProvider();
+          },
+        ),
+        ChangeNotifierProxyProvider<GameConfigProvider, InsolvencyCalculatorProvider>(
+          create: (_) => InsolvencyCalculatorProvider(),
+          update: (_, config, insolvency) {
+            insolvency?.updateGameConfig(config);
+            return insolvency ?? InsolvencyCalculatorProvider();
+          },
+        ),
         ChangeNotifierProvider(create: (_) => MapConfigurationProvider()),
       ],
       child: MaterialApp(
@@ -37,8 +63,69 @@ class CatastropheCompanionApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const MainScreen(),
+        home: const ConfigLoader(),
       ),
+    );
+  }
+}
+
+/// Widget to handle loading game configuration before showing main screen
+class ConfigLoader extends StatelessWidget {
+  const ConfigLoader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GameConfigProvider>(
+      builder: (context, configProvider, child) {
+        if (configProvider.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading game configuration...'),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (configProvider.error != null) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error loading configuration:',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      configProvider.error!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => configProvider.reloadConfig(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return const MainScreen();
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/policy_data.dart';
+import '../providers/game_config_provider.dart';
 import '../providers/policy_tracker_provider.dart';
 import '../providers/payout_calculator_provider.dart';
 
@@ -487,7 +488,24 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   }
 
   void _showSeverityDialog(StormType storm) {
-    final payoutOptions = PolicyData.stormPayouts[storm] ?? [0];
+    final configProvider = Provider.of<GameConfigProvider>(context, listen: false);
+
+    // Get payout options from config or fall back to PolicyData
+    List<int> payoutOptions;
+    if (configProvider.hasConfig) {
+      // Get all possible payouts for this storm from config
+      payoutOptions = [];
+      int prevPayout = -1;
+      for (int index = 0; index < 20; index++) {
+        int payout = configProvider.getStormPayout(storm, index);
+        if (payout == prevPayout && payout == 0) break; // Stop if we get repeated zeros
+        payoutOptions.add(payout);
+        prevPayout = payout;
+      }
+    } else {
+      // Fall back to deprecated PolicyData values
+      payoutOptions = PolicyData.stormPayouts[storm] ?? [0];
+    }
     
     showDialog(
       context: context,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/policy_data.dart';
+import '../providers/game_config_provider.dart';
 import '../providers/policy_tracker_provider.dart';
 import '../providers/cards_provider.dart';
 
@@ -270,8 +271,21 @@ class _PolicyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tracker = Provider.of<PolicyTrackerProvider>(context);
+    final configProvider = Provider.of<GameConfigProvider>(context);
     final count = tracker.getPolicyCount(storm, property);
-    final policyValue = PolicyData.policyValues[PolicyKey(storm, property)];
+
+    // Get policy values from config or fall back to PolicyData
+    final int premium;
+    final int victoryPoints;
+    if (configProvider.hasConfig) {
+      premium = configProvider.getPremium(storm, property);
+      victoryPoints = configProvider.getVictoryPoints(storm, property);
+    } else {
+      // Fall back to deprecated PolicyData values
+      final policyValue = PolicyData.policyValues[PolicyKey(storm, property)];
+      premium = policyValue?.premium ?? 0;
+      victoryPoints = policyValue?.victoryPoints ?? 0;
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -291,7 +305,7 @@ class _PolicyRow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'P: \$${policyValue?.premium ?? 0}',
+                  'P: \$$premium',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.green[700],
@@ -299,10 +313,10 @@ class _PolicyRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'VP: ${policyValue?.victoryPoints ?? 0}',
+                  'VP: $victoryPoints',
                   style: TextStyle(
                     fontSize: 12,
-                    color: (policyValue?.victoryPoints ?? 0) >= 0
+                    color: victoryPoints >= 0
                         ? Colors.blue[700]
                         : Colors.red[700],
                   ),

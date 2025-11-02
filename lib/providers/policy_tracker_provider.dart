@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/policy_data.dart';
+import 'game_config_provider.dart';
 
 class PolicyTrackerProvider extends ChangeNotifier {
   final Map<PolicyKey, int> _policyCounts = {};
   final Set<StormType> _shownGrowthTargetPopups = {};
   final Set<StormType> _shownAgentOfYearPopups = {};
   bool _shownDiversifiedAgentPopup = false;
-  
-  static const int growthTargetThreshold = 2;
-  static const int agentOfYearThreshold = 6;
+
+  // Store reference to GameConfigProvider
+  GameConfigProvider? _configProvider;
+
+  // Update the game configuration reference
+  void updateGameConfig(GameConfigProvider configProvider) {
+    _configProvider = configProvider;
+    notifyListeners();
+  }
+
+  // Get thresholds from config (with defaults if not loaded)
+  int get growthTargetThreshold => _configProvider?.growthTargetThreshold ?? 2;
+  int get agentOfYearThreshold => _configProvider?.agentOfTheYearThreshold ?? 6;
 
   PolicyTrackerProvider() {
     // Initialize all policy counts to 0
@@ -49,23 +60,23 @@ class PolicyTrackerProvider extends ChangeNotifier {
   }
 
   int getTotalPremium() {
+    if (_configProvider == null) return 0;
+
     int total = 0;
     _policyCounts.forEach((key, count) {
-      final policyValue = PolicyData.policyValues[key];
-      if (policyValue != null) {
-        total += policyValue.premium * count;
-      }
+      final premium = _configProvider!.getPremium(key.storm, key.property);
+      total += premium * count;
     });
     return total;
   }
 
   int getTotalVictoryPoints() {
+    if (_configProvider == null) return 0;
+
     int total = 0;
     _policyCounts.forEach((key, count) {
-      final policyValue = PolicyData.policyValues[key];
-      if (policyValue != null) {
-        total += policyValue.victoryPoints * count;
-      }
+      final victoryPoints = _configProvider!.getVictoryPoints(key.storm, key.property);
+      total += victoryPoints * count;
     });
     return total;
   }
@@ -107,7 +118,7 @@ class PolicyTrackerProvider extends ChangeNotifier {
     }
     
     // Need policies in all 7 storm types (counting hurricanes as one)
-    return stormTypesWithPolicies.length == 7;
+    return stormTypesWithPolicies.length >= (_configProvider?.diversifiedAgentMinTypes ?? 7);
   }
 
   void _checkThreshold(StormType storm, BuildContext context) {

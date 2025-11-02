@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:catastrophe_companion/models/policy_data.dart';
+import 'package:catastrophe_companion/models/game_config.dart';
 
 class InsolvencyResult {
   final double insolvencyProbability;
@@ -18,6 +19,7 @@ class InsolvencyAlgorithm {
     required int playerMoney,
     required Map<StormType, int> propertyCount,
     int? earthquakeSeverity,
+    GameConfig? config,
   }) {
     // Convert property counts to array format expected by algorithm
     final propertyCounts = [
@@ -31,8 +33,17 @@ class InsolvencyAlgorithm {
       propertyCount[StormType.hurricaneFlorida] ?? 0,
     ];
 
-    // Get storm occurrences from PolicyData
-    final stormOccurrences = [
+    // Get storm occurrences - use config if available, otherwise PolicyData
+    final stormOccurrences = config != null ? [
+      config.getStormFrequency(StormType.snow),
+      config.getStormFrequency(StormType.earthquake),
+      config.getStormFrequency(StormType.hurricaneOther),
+      config.getStormFrequency(StormType.flood),
+      config.getStormFrequency(StormType.fire),
+      config.getStormFrequency(StormType.hail),
+      config.getStormFrequency(StormType.tornado),
+      config.getStormFrequency(StormType.hurricaneFlorida),
+    ] : [
       PolicyData.stormOccurrenceD20[StormType.snow]!,
       PolicyData.stormOccurrenceD20[StormType.earthquake]!,
       PolicyData.stormOccurrenceD20[StormType.hurricaneOther]!,
@@ -43,12 +54,24 @@ class InsolvencyAlgorithm {
       PolicyData.stormOccurrenceD20[StormType.hurricaneFlorida]!,
     ];
 
-    // Get storm severities from PolicyData
-    final stormSeverities = [
+    // Get storm severities - use config if available, otherwise PolicyData
+    final stormSeverities = config != null ? [
+      config.getStormSeverity(StormType.snow),
+      // Use custom earthquake severity if provided, otherwise use config
+      earthquakeSeverity != null
+          ? List.filled(6, earthquakeSeverity)
+          : config.getStormSeverity(StormType.earthquake),
+      config.getStormSeverity(StormType.hurricaneOther),
+      config.getStormSeverity(StormType.flood),
+      config.getStormSeverity(StormType.fire),
+      config.getStormSeverity(StormType.hail),
+      config.getStormSeverity(StormType.tornado),
+      config.getStormSeverity(StormType.hurricaneFlorida),
+    ] : [
       PolicyData.stormSeverityD6[StormType.snow]!,
       // Use custom earthquake severity if provided, otherwise use default
-      earthquakeSeverity != null 
-          ? List.filled(6, earthquakeSeverity) 
+      earthquakeSeverity != null
+          ? List.filled(6, earthquakeSeverity)
           : PolicyData.stormSeverityD6[StormType.earthquake]!,
       PolicyData.stormSeverityD6[StormType.hurricaneOther]!,
       PolicyData.stormSeverityD6[StormType.flood]!,
@@ -96,7 +119,8 @@ class InsolvencyAlgorithm {
     bool processedHurricane = false;
 
     for (int i = 0; i < 8; i++) {
-      final pStorm = stormOccurrences[i] / 20.0;
+      final d20Base = config?.insolvency.d20Base ?? 20;
+      final pStorm = stormOccurrences[i] / d20Base.toDouble();
 
       List<double> pmf = List.filled(totalCap + 1, 0.0);
 
@@ -114,11 +138,12 @@ class InsolvencyAlgorithm {
         pmf[0] = 1.0 - pStorm; // Probability hurricane doesn't occur
 
         // When hurricane occurs, both storms happen
+        final hurricaneCombinationBase = config?.insolvency.hurricaneCombinationBase ?? 36;
         for (final hoValue in hoSeverities) {
           for (final hfValue in hfSeverities) {
             final combinedPayout = hoValue + hfValue;
             if (combinedPayout < pmf.length) {
-              pmf[combinedPayout] += pStorm / 36.0; // 6×6 = 36 combinations
+              pmf[combinedPayout] += pStorm / hurricaneCombinationBase.toDouble(); // 6×6 = 36 combinations
             }
           }
         }
@@ -129,7 +154,8 @@ class InsolvencyAlgorithm {
         pmf[0] = 1.0 - pStorm; // Probability storm doesn't occur
 
         // When storm occurs
-        final pEach = pStorm / 6.0; // Each die face has 1/6 probability
+        final d6Base = config?.insolvency.d6Base ?? 6;
+        final pEach = pStorm / d6Base.toDouble(); // Each die face has 1/6 probability
         for (final value in adjustedSeverities[i]) {
           if (value < pmf.length) {
             pmf[value] += pEach;

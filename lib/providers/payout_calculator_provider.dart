@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/policy_data.dart';
 import 'policy_tracker_provider.dart';
+import 'game_config_provider.dart';
 
 class PayoutCalculatorProvider extends ChangeNotifier {
   final Map<StormType, int> _selectedPayouts = {};
   bool _billionaireBailout = false;
+
+  // Store reference to GameConfigProvider
+  GameConfigProvider? _configProvider;
+
+  // Update the game configuration reference
+  void updateGameConfig(GameConfigProvider configProvider) {
+    _configProvider = configProvider;
+    notifyListeners();
+  }
 
   PayoutCalculatorProvider() {
     // Initialize all payouts to 0
@@ -26,12 +36,13 @@ class PayoutCalculatorProvider extends ChangeNotifier {
 
   void setSelectedPayout(StormType storm, int value) {
     _selectedPayouts[storm] = value;
-    
-    // If setting Hurricane-Other, automatically set Hurricane-Florida to double
+
+    // If setting Hurricane-Other, automatically set Hurricane-Florida to configured multiplier
     if (storm == StormType.hurricaneOther) {
-      _selectedPayouts[StormType.hurricaneFlorida] = value * 2;
+      final multiplier = _configProvider?.hurricaneFloridaMultiplier ?? 2;
+      _selectedPayouts[StormType.hurricaneFlorida] = value * multiplier;
     }
-    
+
     notifyListeners();
   }
 
