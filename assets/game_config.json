@@ -4,9 +4,9 @@
     "snow_house": {"premium": 7, "victoryPoints": 4},
     "snow_mobileHome": {"premium": 4, "victoryPoints": 6},
 
-    "earthquake_mansion": {"premium": 6, "victoryPoints": -1},
-    "earthquake_house": {"premium": 5, "victoryPoints": 3},
-    "earthquake_mobileHome": {"premium": 3, "victoryPoints": 4},
+    "earthquake_mansion": {"premium": 5, "victoryPoints": -1},
+    "earthquake_house": {"premium": 4, "victoryPoints": 2},
+    "earthquake_mobileHome": {"premium": 2, "victoryPoints": 3},
 
     "hurricaneOther_mansion": {"premium": 9, "victoryPoints": -2},
     "hurricaneOther_house": {"premium": 7, "victoryPoints": 4},
@@ -20,9 +20,9 @@
     "flood_house": {"premium": 7, "victoryPoints": 4},
     "flood_mobileHome": {"premium": 4, "victoryPoints": 6},
 
-    "fire_mansion": {"premium": 10, "victoryPoints": -3},
-    "fire_house": {"premium": 8, "victoryPoints": 4},
-    "fire_mobileHome": {"premium": 4, "victoryPoints": 7},
+    "fire_mansion": {"premium": 12, "victoryPoints": -3},
+    "fire_house": {"premium": 10, "victoryPoints": 5},
+    "fire_mobileHome": {"premium": 5, "victoryPoints": 8},
 
     "hail_mansion": {"premium": 12, "victoryPoints": -3},
     "hail_house": {"premium": 10, "victoryPoints": 5},
@@ -34,7 +34,7 @@
   },
 
   "stormPayouts": {
-    "snow": [0, 5, 10, 15, 25],
+    "snow": [0, 5, 10, 25],
     "earthquake": [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     "hurricaneOther": [0, 5, 15, 25, 30, 35, 40],
     "hurricaneFlorida": [0, 10, 30, 50, 60, 70, 80],
@@ -46,18 +46,18 @@
 
   "stormFrequencyD20": {
     "snow": 12,
-    "earthquake": 2,
+    "earthquake": 3,
     "hurricaneOther": 4,
     "hurricaneFlorida": 4,
     "flood": 5,
-    "fire": 3,
+    "fire": 4,
     "hail": 7,
     "tornado": 6
   },
 
   "stormSeverityD6": {
     "snow": [5, 5, 5, 10, 10, 25],
-    "earthquake": [5, 10, 15, 20, 25, 30],
+    "earthquake": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     "hurricaneOther": [5, 15, 25, 30, 35, 40],
     "hurricaneFlorida": [10, 30, 50, 60, 70, 80],
     "flood": [10, 15, 20, 20, 25, 30],
