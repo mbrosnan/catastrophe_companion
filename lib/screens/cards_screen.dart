@@ -237,18 +237,18 @@ class _CardTile extends StatelessWidget {
     switch (storm) {
       case StormType.snow:
         return Icons.ac_unit;
-      case StormType.earthquake:
-        return Icons.landscape;
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone;
       case StormType.flood:
         return Icons.water;
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department;
       case StormType.hail:
         return Icons.grain;
       case StormType.tornado:
+      case StormType.tornadoTexas:
         return Icons.air;
     }
   }

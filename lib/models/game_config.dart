@@ -22,8 +22,8 @@ class GameConfig {
   // Game thresholds
   final GameThresholds thresholds;
 
-  // Hurricane Florida multiplier
-  final int hurricaneFloridaMultiplier;
+  // Deck definitions for state-specific storm types
+  final DeckConfigs decks;
 
   // Insolvency calculation constants
   final InsolvencyConstants insolvency;
@@ -35,7 +35,7 @@ class GameConfig {
     required this.stormSeverityD6,
     required this.cards,
     required this.thresholds,
-    required this.hurricaneFloridaMultiplier,
+    required this.decks,
     required this.insolvency,
   });
 
@@ -83,7 +83,7 @@ class GameConfig {
       stormSeverityD6: stormSeverity,
       cards: CardConfigs.fromJson(json['cards']),
       thresholds: GameThresholds.fromJson(json['gameThresholds']),
-      hurricaneFloridaMultiplier: json['hurricaneFloridaMultiplier'],
+      decks: DeckConfigs.fromJson(json['decks']),
       insolvency: InsolvencyConstants.fromJson(json['insolvencyConstants']),
     );
   }
@@ -124,20 +124,22 @@ class GameConfig {
     switch (storm) {
       case StormType.snow:
         return 'snow';
-      case StormType.earthquake:
-        return 'earthquake';
-      case StormType.hurricaneOther:
-        return 'hurricaneOther';
-      case StormType.hurricaneFlorida:
-        return 'hurricaneFlorida';
       case StormType.flood:
         return 'flood';
-      case StormType.fire:
-        return 'fire';
       case StormType.hail:
         return 'hail';
+      case StormType.hurricaneOther:
+        return 'hurricaneOther';
+      case StormType.fire:
+        return 'fire';
       case StormType.tornado:
         return 'tornado';
+      case StormType.hurricaneFlorida:
+        return 'hurricaneFlorida';
+      case StormType.fireCalifornia:
+        return 'fireCalifornia';
+      case StormType.tornadoTexas:
+        return 'tornadoTexas';
     }
   }
 
@@ -212,6 +214,27 @@ class GameThresholds {
       growthTarget: json['growthTarget'],
       agentOfTheYear: json['agentOfTheYear'],
       diversifiedAgentMinTypes: json['diversifiedAgentMinTypes'],
+    );
+  }
+}
+
+/// Deck configurations for state-specific storm types
+class DeckConfigs {
+  final List<int> hurricaneFlorida;
+  final List<int> fireCalifornia;
+  final List<String> tornadoTexas;
+
+  DeckConfigs({
+    required this.hurricaneFlorida,
+    required this.fireCalifornia,
+    required this.tornadoTexas,
+  });
+
+  factory DeckConfigs.fromJson(Map<String, dynamic> json) {
+    return DeckConfigs(
+      hurricaneFlorida: (json['hurricaneFlorida'] as List).cast<int>(),
+      fireCalifornia: (json['fireCalifornia'] as List).cast<int>(),
+      tornadoTexas: (json['tornadoTexas'] as List).cast<String>(),
     );
   }
 }

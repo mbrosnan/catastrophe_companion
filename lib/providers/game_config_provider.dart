@@ -107,10 +107,10 @@ class GameConfigProvider extends ChangeNotifier {
   int get agentOfTheYearThreshold => _config?.thresholds.agentOfTheYear ?? 6;
 
   /// Get diversified agent minimum types requirement
-  int get diversifiedAgentMinTypes => _config?.thresholds.diversifiedAgentMinTypes ?? 7;
+  int get diversifiedAgentMinTypes => _config?.thresholds.diversifiedAgentMinTypes ?? 6;
 
-  /// Get Hurricane Florida multiplier
-  int get hurricaneFloridaMultiplier => _config?.hurricaneFloridaMultiplier ?? 2;
+  /// Get deck configurations
+  DeckConfigs? get deckConfigs => _config?.decks;
 
   /// Get insolvency constants
   InsolvencyConstants? get insolvencyConstants => _config?.insolvency;
@@ -119,20 +119,22 @@ class GameConfigProvider extends ChangeNotifier {
     switch (storm) {
       case StormType.snow:
         return 'snow';
-      case StormType.earthquake:
-        return 'earthquake';
-      case StormType.hurricaneOther:
-        return 'hurricaneOther';
-      case StormType.hurricaneFlorida:
-        return 'hurricaneFlorida';
       case StormType.flood:
         return 'flood';
-      case StormType.fire:
-        return 'fire';
       case StormType.hail:
         return 'hail';
+      case StormType.hurricaneOther:
+        return 'hurricaneOther';
+      case StormType.fire:
+        return 'fire';
       case StormType.tornado:
         return 'tornado';
+      case StormType.hurricaneFlorida:
+        return 'hurricaneFlorida';
+      case StormType.fireCalifornia:
+        return 'fireCalifornia';
+      case StormType.tornadoTexas:
+        return 'tornadoTexas';
     }
   }
 }

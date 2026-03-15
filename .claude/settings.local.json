@@ -9,7 +9,10 @@
       "Bash(dart analyze:*)",
       "Bash(scp:*)",
       "Bash(rm:*)",
-      "Bash(/mnt/c/Users/mitch/dev/flutter/bin/flutter analyze)"
+      "Bash(/mnt/c/Users/mitch/dev/flutter/bin/flutter analyze)",
+      "Bash(~/.local/bin/flutter analyze:*)",
+      "Bash(export:*)",
+      "Bash(/mnt/c/Users/mitch/dev/flutter/bin/dart analyze:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

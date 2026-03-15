@@ -32,12 +32,6 @@ class CardsProvider extends ChangeNotifier {
   static final List<VictoryCard> allCards = [
     // Storm Agent Cards
     const VictoryCard(
-      name: 'Earthquake Agent',
-      victoryPoints: 10,
-      isAgent: true,
-      agentStorm: StormType.earthquake,
-    ),
-    const VictoryCard(
       name: 'Snow Agent',
       victoryPoints: 10,
       isAgent: true,
@@ -143,8 +137,7 @@ class CardsProvider extends ChangeNotifier {
           int points = 0;
           if (card.name.contains('Agent')) {
             // Agent cards
-            if (card.name == 'Earthquake Agent') points = _configProvider!.getCardPoints('earthquake');
-            else if (card.name == 'Snow Agent') points = _configProvider!.getCardPoints('snow');
+            if (card.name == 'Snow Agent') points = _configProvider!.getCardPoints('snow');
             else if (card.name == 'Hurricane Agent') points = _configProvider!.getCardPoints('hurricane');
             else if (card.name == 'Flood Agent') points = _configProvider!.getCardPoints('flood');
             else if (card.name == 'Fire Agent') points = _configProvider!.getCardPoints('fire');

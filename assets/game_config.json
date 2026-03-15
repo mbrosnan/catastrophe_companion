@@ -4,51 +4,51 @@
     "snow_house": {"premium": 7, "victoryPoints": 4},
     "snow_mobileHome": {"premium": 4, "victoryPoints": 6},
 
-    "earthquake_mansion": {"premium": 5, "victoryPoints": -1},
-    "earthquake_house": {"premium": 4, "victoryPoints": 2},
-    "earthquake_mobileHome": {"premium": 2, "victoryPoints": 3},
-
-    "hurricaneOther_mansion": {"premium": 9, "victoryPoints": -2},
-    "hurricaneOther_house": {"premium": 7, "victoryPoints": 4},
-    "hurricaneOther_mobileHome": {"premium": 4, "victoryPoints": 6},
-
-    "hurricaneFlorida_mansion": {"premium": 18, "victoryPoints": -6},
-    "hurricaneFlorida_house": {"premium": 14, "victoryPoints": 8},
-    "hurricaneFlorida_mobileHome": {"premium": 8, "victoryPoints": 12},
-
     "flood_mansion": {"premium": 9, "victoryPoints": -2},
     "flood_house": {"premium": 7, "victoryPoints": 4},
     "flood_mobileHome": {"premium": 4, "victoryPoints": 6},
-
-    "fire_mansion": {"premium": 12, "victoryPoints": -3},
-    "fire_house": {"premium": 10, "victoryPoints": 5},
-    "fire_mobileHome": {"premium": 5, "victoryPoints": 8},
 
     "hail_mansion": {"premium": 12, "victoryPoints": -3},
     "hail_house": {"premium": 10, "victoryPoints": 5},
     "hail_mobileHome": {"premium": 5, "victoryPoints": 8},
 
+    "hurricaneOther_mansion": {"premium": 9, "victoryPoints": -2},
+    "hurricaneOther_house": {"premium": 7, "victoryPoints": 4},
+    "hurricaneOther_mobileHome": {"premium": 4, "victoryPoints": 6},
+
+    "fire_mansion": {"premium": 11, "victoryPoints": -3},
+    "fire_house": {"premium": 9, "victoryPoints": 5},
+    "fire_mobileHome": {"premium": 5, "victoryPoints": 7},
+
     "tornado_mansion": {"premium": 16, "victoryPoints": -4},
     "tornado_house": {"premium": 12, "victoryPoints": 7},
-    "tornado_mobileHome": {"premium": 7, "victoryPoints": 10}
+    "tornado_mobileHome": {"premium": 7, "victoryPoints": 10},
+
+    "hurricaneFlorida_mansion": {"premium": 16, "victoryPoints": -6},
+    "hurricaneFlorida_house": {"premium": 13, "victoryPoints": 8},
+    "hurricaneFlorida_mobileHome": {"premium": 8, "victoryPoints": 12},
+
+    "fireCalifornia_mansion": {"premium": 16, "victoryPoints": -6},
+    "fireCalifornia_house": {"premium": 13, "victoryPoints": 8},
+    "fireCalifornia_mobileHome": {"premium": 8, "victoryPoints": 12},
+
+    "tornadoTexas_mansion": {"premium": 18, "victoryPoints": -7},
+    "tornadoTexas_house": {"premium": 15, "victoryPoints": 9},
+    "tornadoTexas_mobileHome": {"premium": 9, "victoryPoints": 13}
   },
 
   "stormPayouts": {
     "snow": [0, 5, 10, 25],
-    "earthquake": [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     "hurricaneOther": [0, 5, 15, 25, 30, 35, 40],
-    "hurricaneFlorida": [0, 10, 30, 50, 60, 70, 80],
     "flood": [0, 10, 15, 20, 25, 30],
-    "fire": [0, 20, 35, 50],
+    "fire": [0, 15, 30, 45],
     "hail": [0, 15, 20, 25],
     "tornado": [0, 25, 30, 35]
   },
 
   "stormFrequencyD20": {
-    "snow": 12,
-    "earthquake": 3,
+    "snow": 10,
     "hurricaneOther": 4,
-    "hurricaneFlorida": 4,
     "flood": 5,
     "fire": 4,
     "hail": 7,
@@ -57,18 +57,15 @@
 
   "stormSeverityD6": {
     "snow": [5, 5, 5, 10, 10, 25],
-    "earthquake": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
     "hurricaneOther": [5, 15, 25, 30, 35, 40],
-    "hurricaneFlorida": [10, 30, 50, 60, 70, 80],
     "flood": [10, 15, 20, 20, 25, 30],
-    "fire": [20, 20, 35, 35, 50, 50],
+    "fire": [15, 15, 30, 30, 45, 45],
     "hail": [15, 15, 20, 20, 25, 25],
     "tornado": [25, 25, 30, 30, 35, 35]
   },
 
   "cards": {
     "agentCards": {
-      "earthquake": 10,
       "snow": 10,
       "hurricane": 10,
       "flood": 10,
@@ -87,10 +84,14 @@
   "gameThresholds": {
     "growthTarget": 2,
     "agentOfTheYear": 6,
-    "diversifiedAgentMinTypes": 7
+    "diversifiedAgentMinTypes": 6
   },
 
-  "hurricaneFloridaMultiplier": 2,
+  "decks": {
+    "hurricaneFlorida": [10, 10, 20, 20, 30, 30],
+    "fireCalifornia": [5, 5, 5, 5, 10, 10, 0, 0],
+    "tornadoTexas": ["snow", "hurricaneOther", "flood", "fire", "hail", "noStorm"]
+  },
 
   "insolvencyConstants": {
     "d20Base": 20,

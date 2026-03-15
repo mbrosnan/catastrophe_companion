@@ -2,26 +2,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum StormType {
-  earthquake,
   snow,
-  hurricaneOther,
   flood,
-  fire,
   hail,
+  hurricaneOther,
+  fire,
   tornado,
   hurricaneFlorida,
+  fireCalifornia,
+  tornadoTexas,
 }
 
 // Storm type colors based on the game
 const Map<StormType, Color> stormColors = {
   StormType.snow: Colors.lightBlue,
-  StormType.earthquake: Color(0xFF8B4513), // Brown
-  StormType.hurricaneOther: Color(0xFFE6E6FA), // Lavender - will be used as text color
-  StormType.hurricaneFlorida: Color(0xFF9370DB), // Purple (medium purple)
-  StormType.flood: Colors.blue,
-  StormType.fire: Colors.red,
+  StormType.flood: Color(0xFF1A4784), // Dark royal blue (KC Royals)
   StormType.hail: Colors.yellow,
+  StormType.hurricaneOther: Color(0xFFE6E6FA), // Lavender
+  StormType.fire: Colors.red,
   StormType.tornado: Colors.grey,
+  StormType.hurricaneFlorida: Color(0xFF9370DB), // Purple (medium purple)
+  StormType.fireCalifornia: Color(0xFFB71C1C), // Darker red
+  StormType.tornadoTexas: Color(0xFF424242), // Darker grey
 };
 
 // Custom background colors for storms that need different background than text
@@ -110,9 +112,11 @@ class MapConfigurationSettings {
 
 // State data as defined in the notes
 const Map<String, StateInfo> usStates = {
+  'AK': StateInfo(code: 'AK', name: 'Alaska', spaces: 1, stormTypes: [StormType.snow]),
+  'HI': StateInfo(code: 'HI', name: 'Hawaii', spaces: 1, stormTypes: [StormType.fire]),
   'WA': StateInfo(code: 'WA', name: 'Washington', spaces: 2, stormTypes: [StormType.fire]),
   'OR': StateInfo(code: 'OR', name: 'Oregon', spaces: 1, stormTypes: [StormType.fire]),
-  'CA': StateInfo(code: 'CA', name: 'California', spaces: 10, stormTypes: [StormType.fire, StormType.earthquake]),
+  'CA': StateInfo(code: 'CA', name: 'California', spaces: 10, stormTypes: [StormType.fireCalifornia]),
   'ID': StateInfo(code: 'ID', name: 'Idaho', spaces: 1, stormTypes: [StormType.fire]),
   'NV': StateInfo(code: 'NV', name: 'Nevada', spaces: 1, stormTypes: [StormType.fire]),
   'AZ': StateInfo(code: 'AZ', name: 'Arizona', spaces: 2, stormTypes: [StormType.fire]),
@@ -126,7 +130,7 @@ const Map<String, StateInfo> usStates = {
   'NE': StateInfo(code: 'NE', name: 'Nebraska', spaces: 1, stormTypes: [StormType.tornado]),
   'KS': StateInfo(code: 'KS', name: 'Kansas', spaces: 1, stormTypes: [StormType.tornado]),
   'OK': StateInfo(code: 'OK', name: 'Oklahoma', spaces: 1, stormTypes: [StormType.tornado]),
-  'TX': StateInfo(code: 'TX', name: 'Texas', spaces: 8, stormTypes: [StormType.tornado, StormType.hurricaneOther]),
+  'TX': StateInfo(code: 'TX', name: 'Texas', spaces: 8, stormTypes: [StormType.tornadoTexas]),
   'MN': StateInfo(code: 'MN', name: 'Minnesota', spaces: 2, stormTypes: [StormType.snow]),
   'IA': StateInfo(code: 'IA', name: 'Iowa', spaces: 1, stormTypes: [StormType.tornado]),
   'MO': StateInfo(code: 'MO', name: 'Missouri', spaces: 2, stormTypes: [StormType.tornado]),
@@ -143,7 +147,7 @@ const Map<String, StateInfo> usStates = {
   'WV': StateInfo(code: 'WV', name: 'West Virginia', spaces: 1, stormTypes: [StormType.hail]),
   'AL': StateInfo(code: 'AL', name: 'Alabama', spaces: 2, stormTypes: [StormType.hurricaneOther]),
   'GA': StateInfo(code: 'GA', name: 'Georgia', spaces: 3, stormTypes: [StormType.hurricaneOther]),
-  'FL': StateInfo(code: 'FL', name: 'Florida', spaces: 5, stormTypes: [StormType.hurricaneOther]),
+  'FL': StateInfo(code: 'FL', name: 'Florida', spaces: 5, stormTypes: [StormType.hurricaneFlorida]),
   'SC': StateInfo(code: 'SC', name: 'South Carolina', spaces: 2, stormTypes: [StormType.hurricaneOther]),
   'NC': StateInfo(code: 'NC', name: 'North Carolina', spaces: 3, stormTypes: [StormType.hurricaneOther]),
   'VA': StateInfo(code: 'VA', name: 'Virginia', spaces: 2, stormTypes: [StormType.hurricaneOther]),

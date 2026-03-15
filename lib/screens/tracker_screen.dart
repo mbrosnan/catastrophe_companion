@@ -242,18 +242,18 @@ class _StormSection extends StatelessWidget {
     switch (storm) {
       case StormType.snow:
         return Icons.ac_unit; // Snowflake
-      case StormType.earthquake:
-        return Icons.landscape; // Split ground
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone; // Hurricane
       case StormType.flood:
         return Icons.water; // Waterline
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department; // Flame
       case StormType.hail:
         return Icons.grain; // Hail
       case StormType.tornado:
+      case StormType.tornadoTexas:
         return Icons.air; // Tornado
     }
   }

@@ -18,68 +18,47 @@ class InsolvencyAlgorithm {
   static InsolvencyResult calculate({
     required int playerMoney,
     required Map<StormType, int> propertyCount,
-    int? earthquakeSeverity,
     GameConfig? config,
   }) {
     // Convert property counts to array format expected by algorithm
+    // Order: snow, hurricaneOther, flood, fire, hail, tornado, hurricaneFlorida, fireCalifornia, tornadoTexas
     final propertyCounts = [
       propertyCount[StormType.snow] ?? 0,
-      propertyCount[StormType.earthquake] ?? 0,
       propertyCount[StormType.hurricaneOther] ?? 0,
       propertyCount[StormType.flood] ?? 0,
       propertyCount[StormType.fire] ?? 0,
       propertyCount[StormType.hail] ?? 0,
       propertyCount[StormType.tornado] ?? 0,
       propertyCount[StormType.hurricaneFlorida] ?? 0,
+      propertyCount[StormType.fireCalifornia] ?? 0,
+      propertyCount[StormType.tornadoTexas] ?? 0,
+    ];
+
+    final stormTypes = [
+      StormType.snow,
+      StormType.hurricaneOther,
+      StormType.flood,
+      StormType.fire,
+      StormType.hail,
+      StormType.tornado,
+      StormType.hurricaneFlorida,
+      StormType.fireCalifornia,
+      StormType.tornadoTexas,
     ];
 
     // Get storm occurrences - use config if available, otherwise PolicyData
-    final stormOccurrences = config != null ? [
-      config.getStormFrequency(StormType.snow),
-      config.getStormFrequency(StormType.earthquake),
-      config.getStormFrequency(StormType.hurricaneOther),
-      config.getStormFrequency(StormType.flood),
-      config.getStormFrequency(StormType.fire),
-      config.getStormFrequency(StormType.hail),
-      config.getStormFrequency(StormType.tornado),
-      config.getStormFrequency(StormType.hurricaneFlorida),
-    ] : [
-      PolicyData.stormOccurrenceD20[StormType.snow]!,
-      PolicyData.stormOccurrenceD20[StormType.earthquake]!,
-      PolicyData.stormOccurrenceD20[StormType.hurricaneOther]!,
-      PolicyData.stormOccurrenceD20[StormType.flood]!,
-      PolicyData.stormOccurrenceD20[StormType.fire]!,
-      PolicyData.stormOccurrenceD20[StormType.hail]!,
-      PolicyData.stormOccurrenceD20[StormType.tornado]!,
-      PolicyData.stormOccurrenceD20[StormType.hurricaneFlorida]!,
-    ];
+    final stormOccurrences = stormTypes.map((st) =>
+      config != null
+        ? config.getStormFrequency(st)
+        : (PolicyData.stormOccurrenceD20[st] ?? 0)
+    ).toList();
 
-    // Get storm severities - use config if available, otherwise PolicyData
-    final stormSeverities = config != null ? [
-      config.getStormSeverity(StormType.snow),
-      // Use custom earthquake severity if provided, otherwise use config
-      earthquakeSeverity != null
-          ? List.filled(6, earthquakeSeverity)
-          : config.getStormSeverity(StormType.earthquake),
-      config.getStormSeverity(StormType.hurricaneOther),
-      config.getStormSeverity(StormType.flood),
-      config.getStormSeverity(StormType.fire),
-      config.getStormSeverity(StormType.hail),
-      config.getStormSeverity(StormType.tornado),
-      config.getStormSeverity(StormType.hurricaneFlorida),
-    ] : [
-      PolicyData.stormSeverityD6[StormType.snow]!,
-      // Use custom earthquake severity if provided, otherwise use default
-      earthquakeSeverity != null
-          ? List.filled(6, earthquakeSeverity)
-          : PolicyData.stormSeverityD6[StormType.earthquake]!,
-      PolicyData.stormSeverityD6[StormType.hurricaneOther]!,
-      PolicyData.stormSeverityD6[StormType.flood]!,
-      PolicyData.stormSeverityD6[StormType.fire]!,
-      PolicyData.stormSeverityD6[StormType.hail]!,
-      PolicyData.stormSeverityD6[StormType.tornado]!,
-      PolicyData.stormSeverityD6[StormType.hurricaneFlorida]!,
-    ];
+    // Get storm severities
+    final stormSeverities = stormTypes.map((st) =>
+      config != null
+        ? config.getStormSeverity(st)
+        : (PolicyData.stormSeverityD6[st] ?? [0])
+    ).toList();
 
     // Step 1: Handle edge cases
     if (propertyCounts.every((count) => count == 0)) {
@@ -96,7 +75,7 @@ class InsolvencyAlgorithm {
 
     // Step 2: Pre-calculate adjusted severities
     final adjustedSeverities = <List<int>>[];
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 9; i++) {
       adjustedSeverities.add(
         stormSeverities[i].map((severity) => severity * propertyCounts[i]).toList(),
       );
@@ -109,53 +88,50 @@ class InsolvencyAlgorithm {
         maxSinglePayout = math.max(maxSinglePayout, severity);
       }
     }
-    final totalCap = maxSinglePayout * 8;
+    final totalCap = maxSinglePayout * 9;
 
     // Create probability distribution array
     List<double> dp = List.filled(totalCap + 1, 0.0);
-    dp[0] = 1.0; // 100% probability of 0 payout initially
+    dp[0] = 1.0;
 
-    // Step 4: Process each storm/die
+    // Step 4: Process each storm
+    // TODO: Phase 4 - properly handle state-specific storm types with their deck mechanics
+    // For now, treat hurricane+florida as co-occurring, and state types as independent
     bool processedHurricane = false;
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 9; i++) {
       final d20Base = config?.insolvency.d20Base ?? 20;
       final pStorm = stormOccurrences[i] / d20Base.toDouble();
 
+      if (pStorm == 0 && propertyCounts[i] == 0) continue;
+
       List<double> pmf = List.filled(totalCap + 1, 0.0);
 
-      if (i == 2 || i == 7) {
-        // Hurricane storms
-        if (processedHurricane) {
-          continue; // Skip, already processed both together
-        }
+      // Hurricane-Other (index 1) and Hurricane-Florida (index 6) co-occur
+      if (i == 1 || i == 6) {
+        if (processedHurricane) continue;
 
-        // Get both hurricane severities
-        final hoSeverities = adjustedSeverities[2]; // Hurricane-Other
-        final hfSeverities = adjustedSeverities[7]; // Hurricane-Florida
+        final hoSeverities = adjustedSeverities[1];
+        final hfSeverities = adjustedSeverities[6];
 
-        // Create PMF for hurricane occurrence
-        pmf[0] = 1.0 - pStorm; // Probability hurricane doesn't occur
+        pmf[0] = 1.0 - pStorm;
 
-        // When hurricane occurs, both storms happen
         final hurricaneCombinationBase = config?.insolvency.hurricaneCombinationBase ?? 36;
         for (final hoValue in hoSeverities) {
           for (final hfValue in hfSeverities) {
             final combinedPayout = hoValue + hfValue;
             if (combinedPayout < pmf.length) {
-              pmf[combinedPayout] += pStorm / hurricaneCombinationBase.toDouble(); // 6×6 = 36 combinations
+              pmf[combinedPayout] += pStorm / hurricaneCombinationBase.toDouble();
             }
           }
         }
 
         processedHurricane = true;
       } else {
-        // Regular storm
-        pmf[0] = 1.0 - pStorm; // Probability storm doesn't occur
+        pmf[0] = 1.0 - pStorm;
 
-        // When storm occurs
         final d6Base = config?.insolvency.d6Base ?? 6;
-        final pEach = pStorm / d6Base.toDouble(); // Each die face has 1/6 probability
+        final pEach = pStorm / d6Base.toDouble();
         for (final value in adjustedSeverities[i]) {
           if (value < pmf.length) {
             pmf[value] += pEach;
@@ -163,7 +139,6 @@ class InsolvencyAlgorithm {
         }
       }
 
-      // Update dp using convolution
       dp = _convolve(dp, pmf, totalCap + 1);
     }
 
@@ -173,16 +148,14 @@ class InsolvencyAlgorithm {
       insolvencyProbability += dp[i];
     }
 
-    // Calculate expected payout
     double expectedPayout = 0.0;
     for (int i = 0; i <= totalCap; i++) {
       expectedPayout += i * dp[i];
     }
 
-    // Create payout distribution map (only include non-zero probabilities)
     final payoutDistribution = <int, double>{};
     for (int i = 0; i <= totalCap; i++) {
-      if (dp[i] > 0.0001) { // Include only significant probabilities
+      if (dp[i] > 0.0001) {
         payoutDistribution[i] = dp[i];
       }
     }
@@ -199,7 +172,6 @@ class InsolvencyAlgorithm {
 
     for (int i = 0; i < dp.length; i++) {
       if (dp[i] > 0) {
-        // Skip zero probabilities for efficiency
         for (int j = 0; j < pmf.length; j++) {
           if (pmf[j] > 0) {
             final index = i + j;
@@ -220,32 +192,30 @@ class InsolvencyAlgorithm {
   ) {
     double noRelevantStormProb = 1.0;
 
-    // Check each die
-    for (int dieIdx = 0; dieIdx < 7; dieIdx++) {
-      if (dieIdx == 2) {
-        // Hurricane die
-        if (propertyCounts[2] > 0 || propertyCounts[7] > 0) {
-          // Hurricane die affects properties
-          noRelevantStormProb *= (1 - stormOccurrences[2] / 20.0);
+    // Hurricane-Other (index 1) and Hurricane-Florida (index 6) share occurrence
+    bool hurricaneChecked = false;
+    for (int i = 0; i < 9; i++) {
+      if (i == 1 || i == 6) {
+        if (!hurricaneChecked && (propertyCounts[1] > 0 || propertyCounts[6] > 0)) {
+          noRelevantStormProb *= (1 - stormOccurrences[1] / 20.0);
+          hurricaneChecked = true;
         }
       } else {
-        // Other dice map directly to storms
-        if (propertyCounts[dieIdx] > 0) {
-          noRelevantStormProb *= (1 - stormOccurrences[dieIdx] / 20.0);
+        if (propertyCounts[i] > 0 && stormOccurrences[i] > 0) {
+          noRelevantStormProb *= (1 - stormOccurrences[i] / 20.0);
         }
       }
     }
 
     final insolvencyProb = (1 - noRelevantStormProb) * 100.0;
-    
-    // For zero money case, any payout > 0 causes insolvency
+
     return InsolvencyResult(
       insolvencyProbability: insolvencyProb,
       payoutDistribution: {
         0: noRelevantStormProb,
-        1: 1 - noRelevantStormProb, // Simplified - any payout causes insolvency
+        1: 1 - noRelevantStormProb,
       },
-      expectedPayout: 0.0, // Not meaningful in this case
+      expectedPayout: 0.0,
     );
   }
 }

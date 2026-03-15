@@ -37,10 +37,11 @@ class PayoutCalculatorProvider extends ChangeNotifier {
   void setSelectedPayout(StormType storm, int value) {
     _selectedPayouts[storm] = value;
 
-    // If setting Hurricane-Other, automatically set Hurricane-Florida to configured multiplier
+    // Hurricane-Other and Hurricane-Florida trigger together
+    // Florida severity will be set separately via deck mechanic in Phase 2
     if (storm == StormType.hurricaneOther) {
-      final multiplier = _configProvider?.hurricaneFloridaMultiplier ?? 2;
-      _selectedPayouts[StormType.hurricaneFlorida] = value * multiplier;
+      // For now, set Florida to same base severity (will be updated in Phase 2 with deck addition)
+      _selectedPayouts[StormType.hurricaneFlorida] = value;
     }
 
     notifyListeners();

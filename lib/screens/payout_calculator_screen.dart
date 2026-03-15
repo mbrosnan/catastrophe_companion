@@ -581,12 +581,10 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
     switch (stormType) {
       case StormType.snow:
         return Colors.blue.shade200;
-      case StormType.earthquake:
-        return const Color(0xFF6D4C41);  // More distinct brown
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
       case StormType.flood:
-        return Colors.blue;
+        return const Color(0xFF1A4784);
       case StormType.fire:
         return Colors.red;
       case StormType.hail:
@@ -595,8 +593,10 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
         return Colors.grey;
       case StormType.hurricaneFlorida:
         return Colors.purple.shade700;
-      default:
-        return Colors.grey;
+      case StormType.fireCalifornia:
+        return const Color(0xFFB71C1C);
+      case StormType.tornadoTexas:
+        return const Color(0xFF424242);
     }
   }
 
@@ -604,44 +604,23 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
     switch (stormType) {
       case StormType.snow:
         return Icons.ac_unit;
-      case StormType.earthquake:
-        return Icons.landscape;
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone;
       case StormType.flood:
         return Icons.water;
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department;
       case StormType.hail:
         return Icons.grain;
       case StormType.tornado:
+      case StormType.tornadoTexas:
         return Icons.air;
-      default:
-        return Icons.warning;
     }
   }
 
   String _getStormName(StormType stormType) {
-    switch (stormType) {
-      case StormType.snow:
-        return 'Snow';
-      case StormType.earthquake:
-        return 'Earthquake';
-      case StormType.hurricaneOther:
-        return 'Hurricane';
-      case StormType.flood:
-        return 'Flood';
-      case StormType.fire:
-        return 'Fire';
-      case StormType.hail:
-        return 'Hail';
-      case StormType.tornado:
-        return 'Tornado';
-      case StormType.hurricaneFlorida:
-        return 'Hurricane FL';
-      default:
-        return '';
-    }
+    return PolicyData.stormNames[stormType] ?? '';
   }
 }

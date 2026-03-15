@@ -101,42 +101,6 @@ class _InsolvencyCalculatorScreenState extends State<InsolvencyCalculatorScreen>
                         },
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Earthquake Severity (Optional)',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<int?>(
-                        value: calculator.earthquakeSeverity,
-                        decoration: InputDecoration(
-                          hintText: 'Use default probabilities',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
-                        ),
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('Default (varies by dice roll)'),
-                          ),
-                          ...List.generate(10, (index) {
-                            final value = (index + 1) * 5;
-                            return DropdownMenuItem<int?>(
-                              value: value,
-                              child: Text('\$$value'),
-                            );
-                          }),
-                        ],
-                        onChanged: (value) {
-                          calculator.setEarthquakeSeverity(value);
-                        },
-                      ),
-                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -269,14 +233,7 @@ class _InsolvencyCalculatorScreenState extends State<InsolvencyCalculatorScreen>
                           ),
                         );
                       }),
-                      if (tracker.getStormTotal(StormType.snow) == 0 &&
-                          tracker.getStormTotal(StormType.earthquake) == 0 &&
-                          tracker.getStormTotal(StormType.hurricaneOther) == 0 &&
-                          tracker.getStormTotal(StormType.flood) == 0 &&
-                          tracker.getStormTotal(StormType.fire) == 0 &&
-                          tracker.getStormTotal(StormType.hail) == 0 &&
-                          tracker.getStormTotal(StormType.tornado) == 0 &&
-                          tracker.getStormTotal(StormType.hurricaneFlorida) == 0)
+                      if (StormType.values.every((s) => tracker.getStormTotal(s) == 0))
                         const Text(
                           'No policies yet',
                           style: TextStyle(

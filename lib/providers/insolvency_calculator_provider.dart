@@ -9,7 +9,6 @@ class InsolvencyCalculatorProvider extends ChangeNotifier {
   double _insolvencyPercentage = 0;
   Map<int, double> _payoutDistribution = {};
   double _expectedPayout = 0;
-  int? _earthquakeSeverity;
 
   // Store reference to GameConfigProvider
   GameConfigProvider? _configProvider;
@@ -24,21 +23,14 @@ class InsolvencyCalculatorProvider extends ChangeNotifier {
   double get insolvencyPercentage => _insolvencyPercentage;
   Map<int, double> get payoutDistribution => _payoutDistribution;
   double get expectedPayout => _expectedPayout;
-  int? get earthquakeSeverity => _earthquakeSeverity;
 
   void setCurrentMoney(double money) {
     _currentMoney = money;
     notifyListeners();
   }
 
-  void setEarthquakeSeverity(int? severity) {
-    _earthquakeSeverity = severity;
-    notifyListeners();
-  }
-
   void calculateInsolvency(PolicyTrackerProvider tracker) {
     if (_configProvider == null || !_configProvider!.hasConfig) {
-      // Can't calculate without configuration
       return;
     }
 
@@ -48,11 +40,9 @@ class InsolvencyCalculatorProvider extends ChangeNotifier {
       propertyCount[storm] = tracker.getStormTotal(storm);
     }
 
-    // Use the new algorithm with configuration
     final result = InsolvencyAlgorithm.calculate(
       playerMoney: _currentMoney.toInt(),
       propertyCount: propertyCount,
-      earthquakeSeverity: _earthquakeSeverity,
       config: _configProvider!.config!,
     );
 

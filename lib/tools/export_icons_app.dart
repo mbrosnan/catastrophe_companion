@@ -72,7 +72,6 @@ class _IconExporterAppState extends State<IconExporterApp> {
   Future<void> _exportStormIcons() async {
     final storms = {
       'snow': (Icons.ac_unit, Colors.lightBlue),
-      'earthquake': (Icons.landscape, Colors.brown),
       'hurricane_other': (Icons.cyclone, const Color(0xFFE6E6FA)),
       'hurricane_florida': (Icons.cyclone, Colors.purple),
       'flood': (Icons.water, Colors.blue),

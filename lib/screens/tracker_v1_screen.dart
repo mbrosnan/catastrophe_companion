@@ -87,7 +87,7 @@ class TrackerV1Screen extends StatelessWidget {
                               SizedBox(
                                 width: itemSize,
                                 height: itemSize,
-                                child: _buildStormIcon(context, StormType.earthquake, provider),
+                                child: _buildStormIcon(context, StormType.fireCalifornia, provider),
                               ),
                               SizedBox(
                                 width: itemSize,
@@ -557,7 +557,7 @@ class TrackerV1Screen extends StatelessWidget {
                             provider.incrementPolicy(StormType.tornado, PropertyType.mobileHome, context);
                           } else {
                             provider.incrementPolicy(StormType.fire, PropertyType.mobileHome, context);
-                            provider.incrementPolicy(StormType.earthquake, PropertyType.mobileHome, context);
+                            provider.incrementPolicy(StormType.fireCalifornia, PropertyType.mobileHome, context);
                           }
                         },
                         () {
@@ -577,9 +577,9 @@ class TrackerV1Screen extends StatelessWidget {
                           } else {
                             // Check if both storm types have enough policies
                             if (provider.getPolicyCount(StormType.fire, PropertyType.mobileHome) > 0 &&
-                                provider.getPolicyCount(StormType.earthquake, PropertyType.mobileHome) > 0) {
+                                provider.getPolicyCount(StormType.fireCalifornia, PropertyType.mobileHome) > 0) {
                               provider.decrementPolicy(StormType.fire, PropertyType.mobileHome);
-                              provider.decrementPolicy(StormType.earthquake, PropertyType.mobileHome);
+                              provider.decrementPolicy(StormType.fireCalifornia, PropertyType.mobileHome);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -600,7 +600,7 @@ class TrackerV1Screen extends StatelessWidget {
                             provider.incrementPolicy(StormType.tornado, PropertyType.house, context);
                           } else {
                             provider.incrementPolicy(StormType.fire, PropertyType.house, context);
-                            provider.incrementPolicy(StormType.earthquake, PropertyType.house, context);
+                            provider.incrementPolicy(StormType.fireCalifornia, PropertyType.house, context);
                           }
                         },
                         () {
@@ -620,9 +620,9 @@ class TrackerV1Screen extends StatelessWidget {
                           } else {
                             // Check if both storm types have enough policies
                             if (provider.getPolicyCount(StormType.fire, PropertyType.house) > 0 &&
-                                provider.getPolicyCount(StormType.earthquake, PropertyType.house) > 0) {
+                                provider.getPolicyCount(StormType.fireCalifornia, PropertyType.house) > 0) {
                               provider.decrementPolicy(StormType.fire, PropertyType.house);
-                              provider.decrementPolicy(StormType.earthquake, PropertyType.house);
+                              provider.decrementPolicy(StormType.fireCalifornia, PropertyType.house);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -643,7 +643,7 @@ class TrackerV1Screen extends StatelessWidget {
                             provider.incrementPolicy(StormType.tornado, PropertyType.mansion, context);
                           } else {
                             provider.incrementPolicy(StormType.fire, PropertyType.mansion, context);
-                            provider.incrementPolicy(StormType.earthquake, PropertyType.mansion, context);
+                            provider.incrementPolicy(StormType.fireCalifornia, PropertyType.mansion, context);
                           }
                         },
                         () {
@@ -663,9 +663,9 @@ class TrackerV1Screen extends StatelessWidget {
                           } else {
                             // Check if both storm types have enough policies
                             if (provider.getPolicyCount(StormType.fire, PropertyType.mansion) > 0 &&
-                                provider.getPolicyCount(StormType.earthquake, PropertyType.mansion) > 0) {
+                                provider.getPolicyCount(StormType.fireCalifornia, PropertyType.mansion) > 0) {
                               provider.decrementPolicy(StormType.fire, PropertyType.mansion);
-                              provider.decrementPolicy(StormType.earthquake, PropertyType.mansion);
+                              provider.decrementPolicy(StormType.fireCalifornia, PropertyType.mansion);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -752,8 +752,6 @@ class TrackerV1Screen extends StatelessWidget {
     switch (stormType) {
       case StormType.snow:
         return Colors.blue.shade200;
-      case StormType.earthquake:
-        return Colors.brown;
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
       case StormType.flood:
@@ -766,8 +764,10 @@ class TrackerV1Screen extends StatelessWidget {
         return Colors.grey;
       case StormType.hurricaneFlorida:
         return Colors.purple.shade700;
-      default:
-        return Colors.grey;
+      case StormType.fireCalifornia:
+        return Colors.orange;
+      case StormType.tornadoTexas:
+        return Colors.blueGrey;
     }
   }
 
@@ -775,21 +775,19 @@ class TrackerV1Screen extends StatelessWidget {
     switch (stormType) {
       case StormType.snow:
         return Icons.ac_unit;
-      case StormType.earthquake:
-        return Icons.landscape;
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone;
       case StormType.flood:
         return Icons.water;
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department;
       case StormType.hail:
         return Icons.grain;
       case StormType.tornado:
+      case StormType.tornadoTexas:
         return Icons.air;
-      default:
-        return Icons.warning;
     }
   }
 
@@ -797,8 +795,6 @@ class TrackerV1Screen extends StatelessWidget {
     switch (stormType) {
       case StormType.snow:
         return 'Snow';
-      case StormType.earthquake:
-        return 'Earthquake';
       case StormType.hurricaneOther:
         return 'Hurricane';
       case StormType.flood:
@@ -811,8 +807,10 @@ class TrackerV1Screen extends StatelessWidget {
         return 'Tornado';
       case StormType.hurricaneFlorida:
         return 'Hurricane (Florida)';
-      default:
-        return '';
+      case StormType.fireCalifornia:
+        return 'CA Fire';
+      case StormType.tornadoTexas:
+        return 'TX Tornado';
     }
   }
 }

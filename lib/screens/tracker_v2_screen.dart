@@ -57,8 +57,6 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
   // Convert between storm type enums
   policy.StormType _convertStormType(config.StormType configStorm) {
     switch (configStorm) {
-      case config.StormType.earthquake:
-        return policy.StormType.earthquake;
       case config.StormType.snow:
         return policy.StormType.snow;
       case config.StormType.hurricaneOther:
@@ -73,6 +71,10 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
         return policy.StormType.tornado;
       case config.StormType.hurricaneFlorida:
         return policy.StormType.hurricaneFlorida;
+      case config.StormType.fireCalifornia:
+        return policy.StormType.fireCalifornia;
+      case config.StormType.tornadoTexas:
+        return policy.StormType.tornadoTexas;
     }
   }
 
@@ -224,7 +226,7 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
     } else if (regionId == 'Flood') {
       _showStormDialog(context, policy.StormType.flood, 'Flood', provider);
     } else if (regionId == 'Alaska') {
-      _showStormDialog(context, policy.StormType.earthquake, 'Earthquake', provider);
+      _showStormDialog(context, policy.StormType.snow, 'Snow', provider);
     }
   }
 
@@ -423,7 +425,7 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
     if (stateName == 'California') {
       availableStorms = [
         policy.StormType.fire,
-        policy.StormType.earthquake,
+        policy.StormType.fireCalifornia,
       ];
     } else if (stateName == 'Texas') {
       availableStorms = [
@@ -574,8 +576,6 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
     switch (stormType) {
       case policy.StormType.snow:
         return Colors.blue.shade200;
-      case policy.StormType.earthquake:
-        return Colors.brown;
       case policy.StormType.hurricaneOther:
         return Colors.purple.shade300;
       case policy.StormType.flood:
@@ -588,8 +588,10 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
         return Colors.grey;
       case policy.StormType.hurricaneFlorida:
         return Colors.purple.shade700;
-      default:
-        return Colors.grey;
+      case policy.StormType.fireCalifornia:
+        return Colors.orange;
+      case policy.StormType.tornadoTexas:
+        return Colors.blueGrey;
     }
   }
 
@@ -597,21 +599,19 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
     switch (stormType) {
       case policy.StormType.snow:
         return Icons.ac_unit;
-      case policy.StormType.earthquake:
-        return Icons.landscape;
       case policy.StormType.hurricaneOther:
       case policy.StormType.hurricaneFlorida:
         return Icons.cyclone;
       case policy.StormType.flood:
         return Icons.water;
       case policy.StormType.fire:
+      case policy.StormType.fireCalifornia:
         return Icons.local_fire_department;
       case policy.StormType.hail:
         return Icons.grain;
       case policy.StormType.tornado:
+      case policy.StormType.tornadoTexas:
         return Icons.air;
-      default:
-        return Icons.warning;
     }
   }
 
@@ -619,8 +619,6 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
     switch (stormType) {
       case policy.StormType.snow:
         return 'Snow';
-      case policy.StormType.earthquake:
-        return 'Earthquake';
       case policy.StormType.hurricaneOther:
         return 'Hurricane';
       case policy.StormType.flood:
@@ -633,8 +631,10 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
         return 'Tornado';
       case policy.StormType.hurricaneFlorida:
         return 'Hurricane (Florida)';
-      default:
-        return '';
+      case policy.StormType.fireCalifornia:
+        return 'CA Fire';
+      case policy.StormType.tornadoTexas:
+        return 'TX Tornado';
     }
   }
 }
