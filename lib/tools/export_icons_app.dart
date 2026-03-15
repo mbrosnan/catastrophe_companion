@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 void main() {
   runApp(const IconExporterApp());
@@ -53,10 +52,7 @@ class _IconExporterAppState extends State<IconExporterApp> {
         dir.createSync(recursive: true);
       }
 
-      // Storm icons
       await _exportStormIcons();
-
-      // Property icons
       await _exportPropertyIcons();
 
       setState(() {
@@ -70,19 +66,31 @@ class _IconExporterAppState extends State<IconExporterApp> {
   }
 
   Future<void> _exportStormIcons() async {
-    final storms = {
-      'snow': (Icons.ac_unit, Colors.lightBlue),
-      'hurricane_other': (Icons.cyclone, const Color(0xFFE6E6FA)),
-      'hurricane_florida': (Icons.cyclone, Colors.purple),
-      'flood': (Icons.water, Colors.blue),
+    // Material icon storms
+    final iconStorms = {
+      'snow': (Icons.ac_unit, const Color(0xFF02A9F4)),
+      'flood': (Icons.water, const Color(0xFF1A4784)),
+      'hail': (Icons.grain, const Color(0xFFFFEB3B)),
+      'hurricane_other': (Icons.cyclone, Colors.purple.shade300),
       'fire': (Icons.local_fire_department, Colors.red),
-      'hail': (Icons.grain, Colors.yellow),
-      'tornado': (Icons.tornado, Colors.grey),
+      'hurricane_florida': (Icons.cyclone, Colors.purple),
+      'fire_california': (Icons.local_fire_department, const Color(0xFFB71C1C)),
     };
 
-    for (final entry in storms.entries) {
+    for (final entry in iconStorms.entries) {
       setState(() => status = 'Exporting storm_${entry.key}.png...');
       await _captureIcon(entry.value.$1, entry.value.$2, 'storm_${entry.key}.png');
+    }
+
+    // Tornado SVG path storms — draw the twister shape directly
+    final tornadoStorms = {
+      'tornado': Colors.grey,
+      'tornado_texas': const Color(0xFF424242),
+    };
+
+    for (final entry in tornadoStorms.entries) {
+      setState(() => status = 'Exporting storm_${entry.key}.png...');
+      await _captureTornadoIcon(entry.value, 'storm_${entry.key}.png');
     }
   }
 
@@ -95,7 +103,7 @@ class _IconExporterAppState extends State<IconExporterApp> {
 
     for (final entry in properties.entries) {
       setState(() => status = 'Exporting property_${entry.key}.png...');
-      await _captureIcon(entry.value, Colors.blue.shade700, 'property_${entry.key}.png');
+      await _captureIcon(entry.value, Colors.teal.shade700, 'property_${entry.key}.png');
     }
   }
 
@@ -104,13 +112,11 @@ class _IconExporterAppState extends State<IconExporterApp> {
     final canvas = Canvas(recorder);
     const size = 1024.0;
 
-    // Transparent background
     canvas.drawRect(
       const Rect.fromLTWH(0, 0, size, size),
       Paint()..color = Colors.transparent,
     );
 
-    // Draw icon
     final textPainter = TextPainter(textDirection: TextDirection.ltr)
       ..text = TextSpan(
         text: String.fromCharCode(icon.codePoint),
@@ -126,6 +132,61 @@ class _IconExporterAppState extends State<IconExporterApp> {
       canvas,
       Offset((size - textPainter.width) / 2, (size - textPainter.height) / 2),
     );
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(size.toInt(), size.toInt());
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final buffer = byteData!.buffer.asUint8List();
+
+    await File('exported_icons/$fileName').writeAsBytes(buffer);
+  }
+
+  Future<void> _captureTornadoIcon(Color color, String fileName) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    const size = 1024.0;
+
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 0, size, size),
+      Paint()..color = Colors.transparent,
+    );
+
+    // Scale from 24x24 SVG viewbox to 1024 canvas (with 75% fill)
+    final scale = size * 0.75 / 24.0;
+    final offset = size * 0.125;
+
+    canvas.save();
+    canvas.translate(offset, offset);
+    canvas.scale(scale);
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Tornado SVG paths (from tornado.svg, 24x24 viewbox)
+    // Each horizontal bar of the twister shape
+    final paths = [
+      // Top bar: x=3..20, y=2..4
+      Path()..addRRect(RRect.fromLTRBR(3, 2, 20, 4, const Radius.circular(1))),
+      // Second bar: x=7..21, y=5..7
+      Path()..addRRect(RRect.fromLTRBR(7, 5, 21, 7, const Radius.circular(1))),
+      // Third bar: x=9..20, y=8..10
+      Path()..addRRect(RRect.fromLTRBR(9, 8, 20, 10, const Radius.circular(1))),
+      // Fourth bar: x=6..16, y=11..13
+      Path()..addRRect(RRect.fromLTRBR(6, 11, 16, 13, const Radius.circular(1))),
+      // Fifth bar: x=6..14, y=14..16
+      Path()..addRRect(RRect.fromLTRBR(6, 14, 14, 16, const Radius.circular(1))),
+      // Sixth bar: x=9..16, y=17..19
+      Path()..addRRect(RRect.fromLTRBR(9, 17, 16, 19, const Radius.circular(1))),
+      // Bottom bar: x=13..17, y=20..22
+      Path()..addRRect(RRect.fromLTRBR(13, 20, 17, 22, const Radius.circular(1))),
+    ];
+
+    for (final path in paths) {
+      canvas.drawPath(path, paint);
+    }
+
+    canvas.restore();
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size.toInt(), size.toInt());

@@ -33,7 +33,7 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   String? texasFlippedStorm; // storm key or 'noStorm'
 
   // Possible California addition values (deck: 4×5, 2×10, 2×0, draw until 0)
-  static const List<int> californiaAdditionOptions = [0, 5, 10, 15, 20, 25, 30];
+  static const List<int> californiaAdditionOptions = [0, 5, 10, 15, 20, 25, 30, 35, 40];
 
   // Possible Florida addition values (deck: 2×10, 2×20, 2×30)
   static const List<int> floridaAdditionOptions = [10, 20, 30];
@@ -791,11 +791,11 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   Color _getStormColor(StormType stormType) {
     switch (stormType) {
       case StormType.snow:
-        return Colors.blue.shade200;
+        return const Color(0xFF02A9F4);
       case StormType.flood:
         return const Color(0xFF1A4784);
       case StormType.hail:
-        return Colors.yellow.shade700;
+        return const Color(0xFFFFEB3B);
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
       case StormType.fire:

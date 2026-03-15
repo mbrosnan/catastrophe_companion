@@ -714,11 +714,11 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   Color _getStormColor(StormType stormType) {
     switch (stormType) {
       case StormType.snow:
-        return Colors.blue.shade200;
+        return const Color(0xFF02A9F4);
       case StormType.flood:
         return const Color(0xFF1A4784); // Dark royal blue (KC Royals)
       case StormType.hail:
-        return Colors.yellow.shade700;
+        return const Color(0xFFFFEB3B);
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
       case StormType.fire:

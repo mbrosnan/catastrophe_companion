@@ -15,9 +15,9 @@ enum StormType {
 
 // Storm type colors based on the game
 const Map<StormType, Color> stormColors = {
-  StormType.snow: Colors.lightBlue,
+  StormType.snow: Color(0xFF02A9F4),
   StormType.flood: Color(0xFF1A4784), // Dark royal blue (KC Royals)
-  StormType.hail: Colors.yellow,
+  StormType.hail: Color(0xFFFFEB3B),
   StormType.hurricaneOther: Color(0xFFE6E6FA), // Lavender
   StormType.fire: Colors.red,
   StormType.tornado: Colors.grey,
