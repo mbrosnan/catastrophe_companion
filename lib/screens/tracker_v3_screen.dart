@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/policy_tracker_provider.dart';
 import '../providers/cards_provider.dart';
@@ -262,11 +263,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _getStormIcon(stormType),
-                    color: color,
-                    size: 28,
-                  ),
+                  _buildStormIcon(stormType, color, 28),
                   const SizedBox(height: 4),
                   Text(
                     _getStormName(stormType),
@@ -651,11 +648,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                Icon(
-                  _getStormIcon(storm),
-                  color: _getStormColor(storm),
-                  size: 20,
-                ),
+                _buildStormIcon(storm, _getStormColor(storm), 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -741,6 +734,18 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
     }
   }
 
+  Widget _buildStormIcon(StormType stormType, Color color, double size) {
+    if (stormType == StormType.tornado || stormType == StormType.tornadoTexas) {
+      return SvgPicture.asset(
+        'assets/icons/tornado.svg',
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    }
+    return Icon(_getStormIcon(stormType), color: color, size: size);
+  }
+
   IconData _getStormIcon(StormType stormType) {
     switch (stormType) {
       case StormType.snow:
@@ -757,7 +762,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
         return Icons.local_fire_department;
       case StormType.tornado:
       case StormType.tornadoTexas:
-        return Icons.air;
+        return Icons.tornado;
     }
   }
 

@@ -254,7 +254,7 @@ class _StormSection extends StatelessWidget {
         return Icons.grain; // Hail
       case StormType.tornado:
       case StormType.tornadoTexas:
-        return Icons.air; // Tornado
+        return Icons.tornado;
     }
   }
 }

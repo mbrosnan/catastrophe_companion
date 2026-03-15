@@ -70,6 +70,7 @@ flutter:
     - assets/catastrophe_regions_rev2.svg
     - assets/catastrophe_regions_clean.svg
     - assets/catastrophe_regions_simple.svg
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

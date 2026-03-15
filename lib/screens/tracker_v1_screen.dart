@@ -787,7 +787,7 @@ class TrackerV1Screen extends StatelessWidget {
         return Icons.grain;
       case StormType.tornado:
       case StormType.tornadoTexas:
-        return Icons.air;
+        return Icons.tornado;
     }
   }
 

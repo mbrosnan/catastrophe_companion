@@ -77,7 +77,7 @@ class _IconExporterAppState extends State<IconExporterApp> {
       'flood': (Icons.water, Colors.blue),
       'fire': (Icons.local_fire_department, Colors.red),
       'hail': (Icons.grain, Colors.yellow),
-      'tornado': (Icons.air, Colors.grey),
+      'tornado': (Icons.tornado, Colors.grey),
     };
 
     for (final entry in storms.entries) {

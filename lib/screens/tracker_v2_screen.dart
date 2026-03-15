@@ -611,7 +611,7 @@ class _TrackerV2ScreenState extends State<TrackerV2Screen> {
         return Icons.grain;
       case policy.StormType.tornado:
       case policy.StormType.tornadoTexas:
-        return Icons.air;
+        return Icons.tornado;
     }
   }
 
