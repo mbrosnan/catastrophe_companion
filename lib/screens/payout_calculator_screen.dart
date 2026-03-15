@@ -13,22 +13,97 @@ class PayoutCalculatorScreen extends StatefulWidget {
 }
 
 class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
-  // Track which storms have occurred and their severities
+  // Only the 6 base storms appear as buttons
+  static const List<StormType> baseStorms = [
+    StormType.snow,
+    StormType.flood,
+    StormType.hail,
+    StormType.hurricaneOther,
+    StormType.fire,
+    StormType.tornado,
+  ];
+
+  // Track which base storms have occurred and their severities
   Map<StormType, int> occurredStorms = {};
-  
-  // Helper to handle Hurricane Florida automatically
-  void _updateHurricanes(StormType storm, int? severity) {
-    if (storm == StormType.hurricaneOther) {
-      if (severity == null) {
-        // Remove both hurricanes
-        occurredStorms.remove(StormType.hurricaneOther);
-        occurredStorms.remove(StormType.hurricaneFlorida);
-      } else {
-        // Add/update both hurricanes
-        occurredStorms[StormType.hurricaneOther] = severity;
-        occurredStorms[StormType.hurricaneFlorida] = severity * 2; // Double for Florida
-      }
+
+  // State-specific additions (set during severity dialog)
+  int? floridaAddition;
+  int? californiaAddition;
+  String? texasFlippedStorm; // storm key or 'noStorm'
+
+  // Possible California addition values (deck: 4×5, 2×10, 2×0, draw until 0)
+  static const List<int> californiaAdditionOptions = [0, 5, 10, 15, 20, 25, 30];
+
+  // Possible Florida addition values (deck: 2×10, 2×20, 2×30)
+  static const List<int> floridaAdditionOptions = [10, 20, 30];
+
+  // Texas flip options
+  static const List<MapEntry<String, String>> texasFlipOptions = [
+    MapEntry('snow', 'Snow'),
+    MapEntry('hurricaneOther', 'Hurricane'),
+    MapEntry('flood', 'Flood'),
+    MapEntry('fire', 'Fire'),
+    MapEntry('hail', 'Hail'),
+    MapEntry('noStorm', 'No Storm'),
+  ];
+
+  int _getTexasAdditionalSeverity() {
+    if (texasFlippedStorm == null || texasFlippedStorm == 'noStorm') return 0;
+    // Map the flipped storm key to StormType
+    final stormTypeMap = {
+      'snow': StormType.snow,
+      'hurricaneOther': StormType.hurricaneOther,
+      'flood': StormType.flood,
+      'fire': StormType.fire,
+      'hail': StormType.hail,
+    };
+    final flippedStorm = stormTypeMap[texasFlippedStorm];
+    if (flippedStorm == null) return 0;
+    // If that storm also occurred, add its severity
+    return occurredStorms[flippedStorm] ?? 0;
+  }
+
+  int _getStateSeverity(StormType stateStorm) {
+    switch (stateStorm) {
+      case StormType.hurricaneFlorida:
+        final baseSeverity = occurredStorms[StormType.hurricaneOther] ?? 0;
+        return baseSeverity + (floridaAddition ?? 0);
+      case StormType.fireCalifornia:
+        final baseSeverity = occurredStorms[StormType.fire] ?? 0;
+        return baseSeverity + (californiaAddition ?? 0);
+      case StormType.tornadoTexas:
+        final baseSeverity = occurredStorms[StormType.tornado] ?? 0;
+        return baseSeverity + _getTexasAdditionalSeverity();
+      default:
+        return 0;
     }
+  }
+
+  int _calculateTotalPayout(PolicyTrackerProvider tracker, PayoutCalculatorProvider payoutProvider) {
+    int total = 0;
+
+    // Base storms
+    occurredStorms.forEach((storm, severity) {
+      final count = payoutProvider.billionaireBailout
+          ? (tracker.getPolicyCount(storm, PropertyType.house) +
+             tracker.getPolicyCount(storm, PropertyType.mobileHome))
+          : tracker.getStormTotal(storm);
+      total += count * severity;
+    });
+
+    // State-specific storms (only if parent occurred)
+    for (final stateStorm in PolicyData.stateStormTypes) {
+      final parentStorm = PolicyData.parentStormTypes[stateStorm]!;
+      if (!occurredStorms.containsKey(parentStorm)) continue;
+      final count = payoutProvider.billionaireBailout
+          ? (tracker.getPolicyCount(stateStorm, PropertyType.house) +
+             tracker.getPolicyCount(stateStorm, PropertyType.mobileHome))
+          : tracker.getStormTotal(stateStorm);
+      if (count == 0) continue;
+      total += count * _getStateSeverity(stateStorm);
+    }
+
+    return total;
   }
 
   @override
@@ -37,26 +112,15 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
       builder: (context, payoutProvider, trackerProvider, child) {
         final size = MediaQuery.of(context).size;
         final isPortrait = size.height > size.width;
-        
-        // Calculate total payout
-        int totalPayout = 0;
-        occurredStorms.forEach((storm, severity) {
-          final stormTotal = payoutProvider.billionaireBailout
-              ? (trackerProvider.getPolicyCount(storm, PropertyType.house) +
-                 trackerProvider.getPolicyCount(storm, PropertyType.mobileHome))
-              : trackerProvider.getStormTotal(storm);
-          totalPayout += stormTotal * severity;
-        });
+
+        final totalPayout = _calculateTotalPayout(trackerProvider, payoutProvider);
 
         return Scaffold(
           body: SafeArea(
             child: Column(
               children: [
-                // Header with total payout and clear button
                 _buildHeader(totalPayout),
                 const Divider(height: 1),
-                
-                // Main content - different layout based on orientation
                 Expanded(
                   child: isPortrait
                       ? _buildPortraitLayout(trackerProvider, payoutProvider)
@@ -82,18 +146,12 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
             children: [
               const Text(
                 'Payout',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 2),
               const Text(
                 'Total Payout:',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -109,6 +167,9 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
             onPressed: () {
               setState(() {
                 occurredStorms.clear();
+                floridaAddition = null;
+                californiaAddition = null;
+                texasFlippedStorm = null;
               });
             },
             child: const Text('Clear All'),
@@ -121,7 +182,6 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   Widget _buildPortraitLayout(PolicyTrackerProvider trackerProvider, PayoutCalculatorProvider payoutProvider) {
     return Column(
       children: [
-        // Storms that did not occur
         Expanded(
           child: Column(
             children: [
@@ -132,16 +192,11 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
-              Expanded(
-                child: _buildUnoccurredStorms(trackerProvider),
-              ),
+              Expanded(child: _buildUnoccurredStorms(trackerProvider)),
             ],
           ),
         ),
-        
         const Divider(height: 1, thickness: 1),
-        
-        // Storms that occurred
         Expanded(
           child: Column(
             children: [
@@ -152,24 +207,13 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
-              Expanded(
-                child: _buildOccurredStorms(trackerProvider, payoutProvider),
-              ),
-              // Billionaire bailout checkbox
+              Expanded(child: _buildOccurredStorms(trackerProvider, payoutProvider)),
               CheckboxListTile(
-                title: const Text(
-                  'Billionaire Bailout',
-                  style: TextStyle(fontSize: 13),
-                ),
-                subtitle: const Text(
-                  'Mansions do not add to payout',
-                  style: TextStyle(fontSize: 11),
-                ),
+                title: const Text('Billionaire Bailout', style: TextStyle(fontSize: 13)),
+                subtitle: const Text('Mansions do not add to payout', style: TextStyle(fontSize: 11)),
                 value: payoutProvider.billionaireBailout,
                 onChanged: (value) {
-                  if (value != null) {
-                    payoutProvider.setBillionaireBailout(value);
-                  }
+                  if (value != null) payoutProvider.setBillionaireBailout(value);
                 },
                 controlAffinity: ListTileControlAffinity.leading,
                 dense: true,
@@ -186,7 +230,6 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   Widget _buildLandscapeLayout(PolicyTrackerProvider trackerProvider, PayoutCalculatorProvider payoutProvider) {
     return Row(
       children: [
-        // Left side - Storms that did not occur
         Expanded(
           child: Column(
             children: [
@@ -197,16 +240,11 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
-              Expanded(
-                child: _buildUnoccurredStorms(trackerProvider),
-              ),
+              Expanded(child: _buildUnoccurredStorms(trackerProvider)),
             ],
           ),
         ),
-        
         const VerticalDivider(width: 1, thickness: 1),
-        
-        // Right side - Storms that occurred
         Expanded(
           child: Column(
             children: [
@@ -217,24 +255,13 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ),
-              Expanded(
-                child: _buildOccurredStorms(trackerProvider, payoutProvider),
-              ),
-              // Billionaire bailout checkbox
+              Expanded(child: _buildOccurredStorms(trackerProvider, payoutProvider)),
               CheckboxListTile(
-                title: const Text(
-                  'Billionaire Bailout',
-                  style: TextStyle(fontSize: 13),
-                ),
-                subtitle: const Text(
-                  'Mansions do not add to payout',
-                  style: TextStyle(fontSize: 11),
-                ),
+                title: const Text('Billionaire Bailout', style: TextStyle(fontSize: 13)),
+                subtitle: const Text('Mansions do not add to payout', style: TextStyle(fontSize: 11)),
                 value: payoutProvider.billionaireBailout,
                 onChanged: (value) {
-                  if (value != null) {
-                    payoutProvider.setBillionaireBailout(value);
-                  }
+                  if (value != null) payoutProvider.setBillionaireBailout(value);
                 },
                 controlAffinity: ListTileControlAffinity.leading,
                 dense: true,
@@ -249,25 +276,24 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   }
 
   Widget _buildUnoccurredStorms(PolicyTrackerProvider trackerProvider) {
-    final unoccurredStorms = StormType.values.where((storm) => !occurredStorms.containsKey(storm)).toList();
+    final unoccurred = baseStorms.where((s) => !occurredStorms.containsKey(s)).toList();
     final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
-    
-    // Pad with empty containers if needed to maintain grid
+
     final List<Widget> gridItems = [];
-    for (int i = 0; i < 8; i++) {
-      if (i < unoccurredStorms.length) {
-        gridItems.add(_buildStormButton(unoccurredStorms[i], trackerProvider, false));
+    for (int i = 0; i < 6; i++) {
+      if (i < unoccurred.length) {
+        gridItems.add(_buildStormButton(unoccurred[i], trackerProvider));
       } else {
-        gridItems.add(Container()); // Empty space
+        gridItems.add(Container());
       }
     }
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: GridView.count(
-        crossAxisCount: 4,
-        childAspectRatio: isLandscape ? 1.0 : 1.25,  // Square in landscape, wider in portrait
+        crossAxisCount: 3,
+        childAspectRatio: isLandscape ? 1.0 : 1.25,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
         shrinkWrap: true,
@@ -280,157 +306,101 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
   Widget _buildOccurredStorms(PolicyTrackerProvider trackerProvider, PayoutCalculatorProvider payoutProvider) {
     if (occurredStorms.isEmpty) {
       return const Center(
-        child: Text(
-          'No storms have occurred yet',
-          style: TextStyle(color: Colors.grey),
-        ),
+        child: Text('No storms have occurred yet', style: TextStyle(color: Colors.grey)),
       );
     }
 
-    final size = MediaQuery.of(context).size;
-    final isLandscape = size.width > size.height;
-
-    // Build list of occurred storm widgets
-    final occurredStormWidgets = occurredStorms.entries.map((entry) {
+    // Build list of all occurred entries (base + state-specific)
+    final List<Widget> items = [];
+    for (final entry in occurredStorms.entries) {
       final storm = entry.key;
       final severity = entry.value;
-      final stormTotal = payoutProvider.billionaireBailout
+      final count = payoutProvider.billionaireBailout
           ? (trackerProvider.getPolicyCount(storm, PropertyType.house) +
              trackerProvider.getPolicyCount(storm, PropertyType.mobileHome))
           : trackerProvider.getStormTotal(storm);
-      final payout = stormTotal * severity;
+      items.add(_buildOccurredStormTile(storm, severity, count, storm));
 
-      return _buildOccurredStormButton(storm, trackerProvider, severity, stormTotal, payout);
-    }).toList();
-    
-    // Pad with empty containers to maintain 4x2 grid
-    final List<Widget> gridItems = [];
-    for (int i = 0; i < 8; i++) {
-      if (i < occurredStormWidgets.length) {
-        gridItems.add(occurredStormWidgets[i]);
-      } else {
-        gridItems.add(Container()); // Empty space
+      // Add state-specific variants if player has those policies
+      for (final stateStorm in PolicyData.stateStormTypes) {
+        if (PolicyData.parentStormTypes[stateStorm] != storm) continue;
+        final stateCount = payoutProvider.billionaireBailout
+            ? (trackerProvider.getPolicyCount(stateStorm, PropertyType.house) +
+               trackerProvider.getPolicyCount(stateStorm, PropertyType.mobileHome))
+            : trackerProvider.getStormTotal(stateStorm);
+        if (stateCount == 0) continue;
+        final stateSeverity = _getStateSeverity(stateStorm);
+        items.add(_buildOccurredStormTile(stateStorm, stateSeverity, stateCount, storm));
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: GridView.count(
-        crossAxisCount: 4,
-        childAspectRatio: isLandscape ? 0.85 : 1.1,  // Taller in landscape, wider in portrait
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: gridItems,
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      children: items,
+    );
+  }
+
+  Widget _buildOccurredStormTile(StormType storm, int severity, int count, StormType parentStorm) {
+    final color = _getStormColor(storm);
+    final payout = count * severity;
+    final isStateSpecific = PolicyData.parentStormTypes.containsKey(storm);
+
+    // Build subtitle showing calculation details
+    String subtitle = '$count × \$$severity = \$$payout';
+    if (storm == StormType.tornadoTexas && texasFlippedStorm != null) {
+      final baseTornado = occurredStorms[StormType.tornado] ?? 0;
+      final additional = _getTexasAdditionalSeverity();
+      final flipLabel = texasFlipOptions.firstWhere((e) => e.key == texasFlippedStorm).value;
+      if (texasFlippedStorm == 'noStorm') {
+        subtitle = '$count × \$$baseTornado = \$$payout';
+      } else {
+        subtitle = '$count × (\$$baseTornado Tornado + \$$additional $flipLabel) = \$$payout';
+      }
+    } else if (storm == StormType.fireCalifornia && californiaAddition != null) {
+      final baseFire = occurredStorms[StormType.fire] ?? 0;
+      subtitle = '$count × (\$$baseFire + \$$californiaAddition CA) = \$$payout';
+    } else if (storm == StormType.hurricaneFlorida && floridaAddition != null) {
+      final baseHurricane = occurredStorms[StormType.hurricaneOther] ?? 0;
+      subtitle = '$count × (\$$baseHurricane + \$$floridaAddition FL) = \$$payout';
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 4),
+      child: ListTile(
+        dense: true,
+        leading: Icon(_getStormIcon(storm), color: color, size: 28),
+        title: Text(
+          _getStormName(storm),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: isStateSpecific ? color : null,
+          ),
+        ),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 11)),
+        trailing: Text(
+          '\$$payout',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: payout > 0 ? Colors.red : Colors.green,
+          ),
+        ),
+        onTap: isStateSpecific ? null : () => _showRemoveConfirmation(storm),
       ),
     );
   }
-  
-  Widget _buildOccurredStormButton(StormType storm, PolicyTrackerProvider trackerProvider, int severity, int stormTotal, int payout) {
+
+  Widget _buildStormButton(StormType storm, PolicyTrackerProvider trackerProvider) {
+    final totalPolicies = trackerProvider.getCombinedStormTotal(storm);
     final stormColor = _getStormColor(storm);
-    
+
     return GestureDetector(
-      onTap: storm != StormType.hurricaneFlorida ? () => _showRemoveConfirmation(storm) : null,
+      onTap: () => _showSeverityDialog(storm, trackerProvider),
       child: Container(
         decoration: BoxDecoration(
           color: stormColor.withOpacity(0.1),
-          border: Border.all(
-            color: stormColor,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        _getStormIcon(storm),
-                        color: stormColor,
-                        size: 24,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        storm == StormType.hurricaneFlorida 
-                            ? 'Hurricane\nFL'
-                            : _getStormName(storm),
-                        style: const TextStyle(
-                          fontSize: 10,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                // Policy count circle
-                Positioned(
-                  right: 4,
-                  top: 4,
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: stormColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        stormTotal.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '$stormTotal×\$$severity',
-              style: const TextStyle(
-                fontSize: 10,
-              ),
-            ),
-            Text(
-              '=\$$payout',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStormButton(StormType storm, PolicyTrackerProvider trackerProvider, bool isOccurred) {
-    final totalPolicies = trackerProvider.getStormTotal(storm);
-    final stormColor = isOccurred ? _getStormColor(storm) : _getStormColor(storm).withOpacity(0.5);
-    final isHurricaneFlorida = storm == StormType.hurricaneFlorida;
-
-    return GestureDetector(
-      onTap: () {
-        // Hurricane Florida is not clickable
-        if (!isOccurred && !isHurricaneFlorida) {
-          _showSeverityDialog(storm);
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: stormColor.withOpacity(isHurricaneFlorida && !isOccurred ? 0.05 : 0.1),
-          border: Border.all(
-            color: isHurricaneFlorida && !isOccurred ? stormColor.withOpacity(0.3) : stormColor,
-            width: isOccurred ? 2 : 1,
-          ),
+          border: Border.all(color: stormColor, width: 1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Stack(
@@ -439,44 +409,27 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _getStormIcon(storm),
-                    color: stormColor,
-                    size: 24,
-                  ),
+                  Icon(_getStormIcon(storm), color: stormColor, size: 24),
                   const SizedBox(height: 4),
                   Text(
-                    storm == StormType.hurricaneFlorida 
-                        ? 'Hurricane\nFL'
-                        : _getStormName(storm),
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: isOccurred ? Colors.black : Colors.black54,
-                    ),
+                    _getStormName(storm),
+                    style: const TextStyle(fontSize: 10),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-            // Policy count circle
             Positioned(
               right: 4,
               top: 4,
               child: Container(
                 width: 20,
                 height: 20,
-                decoration: BoxDecoration(
-                  color: stormColor,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: stormColor, shape: BoxShape.circle),
                 child: Center(
                   child: Text(
                     totalPolicies.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -487,51 +440,73 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
     );
   }
 
-  void _showSeverityDialog(StormType storm) {
+  // --- Severity Dialogs ---
+
+  void _showSeverityDialog(StormType storm, PolicyTrackerProvider tracker) {
     final configProvider = Provider.of<GameConfigProvider>(context, listen: false);
 
-    // Get payout options from config or fall back to PolicyData
-    List<int> payoutOptions;
+    // Get base severity options
+    List<int> severityOptions;
     if (configProvider.hasConfig) {
-      // Get all possible payouts for this storm from config
-      payoutOptions = [];
-      int prevPayout = -1;
-      for (int index = 0; index < 20; index++) {
-        int payout = configProvider.getStormPayout(storm, index);
-        if (payout == prevPayout && payout == 0) break; // Stop if we get repeated zeros
-        payoutOptions.add(payout);
-        prevPayout = payout;
+      severityOptions = [];
+      int prev = -1;
+      for (int i = 0; i < 20; i++) {
+        int p = configProvider.getStormPayout(storm, i);
+        if (p == prev && p == 0) break;
+        severityOptions.add(p);
+        prev = p;
       }
     } else {
-      // Fall back to deprecated PolicyData values
-      payoutOptions = PolicyData.stormPayouts[storm] ?? [0];
+      severityOptions = PolicyData.stormPayouts[storm] ?? [0];
     }
-    
+    severityOptions = severityOptions.where((v) => v > 0).toList();
+
+    // Determine if this storm has a state-specific variant
+    StormType? stateStorm;
+    for (final ss in PolicyData.stateStormTypes) {
+      if (PolicyData.parentStormTypes[ss] == storm) {
+        stateStorm = ss;
+        break;
+      }
+    }
+
+    final hasStatePolicy = stateStorm != null && tracker.getStormTotal(stateStorm) > 0;
+
+    if (stateStorm == null || !hasStatePolicy) {
+      // Simple dialog — no state-specific section needed
+      _showSimpleSeverityDialog(storm, severityOptions);
+    } else if (stateStorm == StormType.hurricaneFlorida) {
+      _showHurricaneSeverityDialog(severityOptions, tracker);
+    } else if (stateStorm == StormType.fireCalifornia) {
+      _showFireSeverityDialog(severityOptions, tracker);
+    } else if (stateStorm == StormType.tornadoTexas) {
+      _showTornadoSeverityDialog(severityOptions, tracker);
+    }
+  }
+
+  void _showSimpleSeverityDialog(StormType storm, List<int> options) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (ctx) {
         return AlertDialog(
           title: Text('Select ${_getStormName(storm)} Severity'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: payoutOptions.where((payout) => payout > 0).map((payout) {
+            children: options.map((severity) {
               return ListTile(
-                title: Text('\$$payout'),
+                title: Text('\$$severity'),
                 onTap: () {
                   setState(() {
-                    _updateHurricanes(storm, payout);
-                    if (storm != StormType.hurricaneOther) {
-                      occurredStorms[storm] = payout;
-                    }
+                    occurredStorms[storm] = severity;
                   });
-                  Navigator.of(context).pop();
+                  Navigator.of(ctx).pop();
                 },
               );
             }).toList(),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(ctx).pop(),
               child: const Text('Cancel'),
             ),
           ],
@@ -540,33 +515,268 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
     );
   }
 
-  void _showRemoveConfirmation(StormType storm) {
-    // Don't allow removing Hurricane Florida directly
-    if (storm == StormType.hurricaneFlorida) {
-      return;
-    }
-    
+  void _showHurricaneSeverityDialog(List<int> severityOptions, PolicyTrackerProvider tracker) {
+    int? selectedSeverity;
+    int? selectedFLAddition;
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              title: const Text('Hurricane Severity'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Base Severity', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: severityOptions.map((sev) {
+                        final isSelected = selectedSeverity == sev;
+                        return ChoiceChip(
+                          label: Text('\$$sev'),
+                          selected: isSelected,
+                          selectedColor: Colors.purple.shade200,
+                          onSelected: (_) {
+                            setDialogState(() => selectedSeverity = sev);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Florida Addition', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: floridaAdditionOptions.map((add) {
+                        final isSelected = selectedFLAddition == add;
+                        return ChoiceChip(
+                          label: Text('+\$$add'),
+                          selected: isSelected,
+                          selectedColor: Colors.purple.shade400,
+                          onSelected: (_) {
+                            setDialogState(() => selectedFLAddition = add);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (selectedSeverity != null && selectedFLAddition != null)
+                      ? () {
+                          setState(() {
+                            occurredStorms[StormType.hurricaneOther] = selectedSeverity!;
+                            floridaAddition = selectedFLAddition;
+                          });
+                          Navigator.of(ctx).pop();
+                        }
+                      : null,
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showFireSeverityDialog(List<int> severityOptions, PolicyTrackerProvider tracker) {
+    int? selectedSeverity;
+    int? selectedCAAddition;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              title: const Text('Fire Severity'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Base Severity', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: severityOptions.map((sev) {
+                        final isSelected = selectedSeverity == sev;
+                        return ChoiceChip(
+                          label: Text('\$$sev'),
+                          selected: isSelected,
+                          selectedColor: Colors.red.shade200,
+                          onSelected: (_) {
+                            setDialogState(() => selectedSeverity = sev);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('California Addition', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: californiaAdditionOptions.map((add) {
+                        final isSelected = selectedCAAddition == add;
+                        return ChoiceChip(
+                          label: Text(add == 0 ? '\$0' : '+\$$add'),
+                          selected: isSelected,
+                          selectedColor: const Color(0xFFB71C1C).withOpacity(0.4),
+                          onSelected: (_) {
+                            setDialogState(() => selectedCAAddition = add);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (selectedSeverity != null && selectedCAAddition != null)
+                      ? () {
+                          setState(() {
+                            occurredStorms[StormType.fire] = selectedSeverity!;
+                            californiaAddition = selectedCAAddition;
+                          });
+                          Navigator.of(ctx).pop();
+                        }
+                      : null,
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showTornadoSeverityDialog(List<int> severityOptions, PolicyTrackerProvider tracker) {
+    int? selectedSeverity;
+    String? selectedFlip;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              title: const Text('Tornado Severity'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Base Severity', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: severityOptions.map((sev) {
+                        final isSelected = selectedSeverity == sev;
+                        return ChoiceChip(
+                          label: Text('\$$sev'),
+                          selected: isSelected,
+                          selectedColor: Colors.grey.shade400,
+                          onSelected: (_) {
+                            setDialogState(() => selectedSeverity = sev);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Texas Storm Flip', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: texasFlipOptions.map((entry) {
+                        final isSelected = selectedFlip == entry.key;
+                        return ChoiceChip(
+                          label: Text(entry.value),
+                          selected: isSelected,
+                          selectedColor: const Color(0xFF424242).withOpacity(0.4),
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.white : null,
+                          ),
+                          onSelected: (_) {
+                            setDialogState(() => selectedFlip = entry.key);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: (selectedSeverity != null && selectedFlip != null)
+                      ? () {
+                          setState(() {
+                            occurredStorms[StormType.tornado] = selectedSeverity!;
+                            texasFlippedStorm = selectedFlip;
+                          });
+                          Navigator.of(ctx).pop();
+                        }
+                      : null,
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showRemoveConfirmation(StormType storm) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
         return AlertDialog(
           title: const Text('Remove Storm?'),
-          content: Text('Are you sure you want to remove ${_getStormName(storm)} from occurred storms?'),
+          content: Text('Remove ${_getStormName(storm)} from occurred storms?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(ctx).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 setState(() {
-                  if (storm == StormType.hurricaneOther) {
-                    _updateHurricanes(storm, null);
-                  } else {
-                    occurredStorms.remove(storm);
-                  }
+                  occurredStorms.remove(storm);
+                  // Clear state-specific data when parent is removed
+                  if (storm == StormType.hurricaneOther) floridaAddition = null;
+                  if (storm == StormType.fire) californiaAddition = null;
+                  if (storm == StormType.tornado) texasFlippedStorm = null;
                 });
-                Navigator.of(context).pop();
+                Navigator.of(ctx).pop();
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Remove'),
@@ -581,14 +791,14 @@ class _PayoutCalculatorScreenState extends State<PayoutCalculatorScreen> {
     switch (stormType) {
       case StormType.snow:
         return Colors.blue.shade200;
-      case StormType.hurricaneOther:
-        return Colors.purple.shade300;
       case StormType.flood:
         return const Color(0xFF1A4784);
-      case StormType.fire:
-        return Colors.red;
       case StormType.hail:
         return Colors.yellow.shade700;
+      case StormType.hurricaneOther:
+        return Colors.purple.shade300;
+      case StormType.fire:
+        return Colors.red;
       case StormType.tornado:
         return Colors.grey;
       case StormType.hurricaneFlorida:
