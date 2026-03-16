@@ -217,6 +217,8 @@ class _MainScreenState extends State<MainScreen> {
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  static const String appVersion = '2.0.0';
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -243,6 +245,15 @@ class SettingsScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
+            const Spacer(),
+            Text(
+              'v$appVersion',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

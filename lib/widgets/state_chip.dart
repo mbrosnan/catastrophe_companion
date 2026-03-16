@@ -18,16 +18,9 @@ class StateChip extends StatelessWidget {
     if (stormTypes.length == 1) {
       // Single storm type - simple colored chip
       final stormType = stormTypes.first;
-      
-      // Special handling for Florida - show as dark purple even though it's hurricaneOther
-      final isFloridaHurricane = stateCode == 'FL' && stormType == StormType.hurricaneOther;
-      final displayColor = isFloridaHurricane 
-          ? stormColors[StormType.hurricaneFlorida]!  // Use Florida purple color
-          : stormColors[stormType]!;
-      
-      final backgroundColor = isFloridaHurricane
-          ? null  // No custom background for Florida
-          : stormBackgroundColors[stormType];
+      final displayColor = stormColors[stormType]!;
+
+      final backgroundColor = stormBackgroundColors[stormType];
       final hasCustomBackground = backgroundColor != null;
       
       return Chip(
