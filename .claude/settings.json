@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(flutter *)",
+      "Bash(dart *)",
+      "Bash(git status *)", "Bash(git log *)", "Bash(git diff *)",
+      "Bash(git add *)", "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh pr create *)", "Bash(gh pr view *)", "Bash(gh pr list *)",
+      "Bash(rsync *)",
+      "Edit"
+    ],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(rm -rf /*)",
+      "Bash(curl * http://*)",
+      "Edit(.env*)",
+      "Read(~/.ssh/*)", "Read(~/.aws/*)", "Read(~/.claude/*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous.sh" }
+        ]
+      }
+    ]
+  }
+}
