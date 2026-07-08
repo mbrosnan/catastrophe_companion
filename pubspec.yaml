@@ -64,11 +64,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/profiles/
+    - assets/game_config.json
     - assets/us_states_map.svg
     - assets/catastrophe_regions_rev1.svg
     - assets/catastrophe_regions_rev2.svg
     - assets/catastrophe_regions_clean.svg
     - assets/catastrophe_regions_simple.svg
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

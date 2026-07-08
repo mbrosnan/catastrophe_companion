@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/policy_tracker_provider.dart';
 import '../providers/cards_provider.dart';
@@ -14,8 +15,19 @@ class TrackerV3Screen extends StatefulWidget {
 class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   StormType? selectedStormType;
   PropertyType? selectedPropertyType;
-  bool isCaliforniaSelected = false; // For CA/TX toggle
-  bool isStateSelection = false; // Track if CA/TX is selected
+
+  // Grid order: Snow, Flood, Hail, Hurricane, Fire, Tornado, Florida, California, Texas
+  static const List<StormType> gridOrder = [
+    StormType.snow,
+    StormType.flood,
+    StormType.hail,
+    StormType.hurricaneOther,
+    StormType.fire,
+    StormType.tornado,
+    StormType.hurricaneFlorida,
+    StormType.fireCalifornia,
+    StormType.tornadoTexas,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +35,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       builder: (context, provider, child) {
         final size = MediaQuery.of(context).size;
         final isPortrait = size.height > size.width;
-        
+
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -31,7 +43,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 // Header with premium and VP
                 _buildHeader(context, provider),
                 const Divider(height: 1),
-                
+
                 // Main content area - different layout based on orientation
                 Expanded(
                   child: isPortrait
@@ -51,14 +63,14 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       children: [
         _buildStormGrid(provider),
         const Divider(height: 32, thickness: 1),
-        
+
         // Property type selection
         _buildPropertyTypeRow(),
         const Divider(height: 32, thickness: 1),
-        
+
         // Add/Remove buttons
         _buildActionButtons(provider),
-        
+
         const Spacer(),
       ],
     );
@@ -72,12 +84,12 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           flex: 3,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: _buildStormGridLandscape(provider),
+            child: _buildStormGrid(provider),
           ),
         ),
-        
+
         const VerticalDivider(width: 1),
-        
+
         // Property types in the middle (vertical)
         SizedBox(
           width: 120,
@@ -86,9 +98,9 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
             child: _buildPropertyTypeColumn(provider),
           ),
         ),
-        
+
         const VerticalDivider(width: 1),
-        
+
         // Add/Remove buttons on the right
         SizedBox(
           width: 120,
@@ -106,7 +118,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
     final policyVP = provider.getTotalVictoryPoints();
     final cardVP = cardsProvider.getTotalCardVictoryPoints();
     final totalVP = policyVP + cardVP;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
@@ -182,38 +194,38 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // First row: EQ, Snow, Hurricane
+          // Row 1: Snow, Flood, Hail
           Row(
             children: [
-              Expanded(child: _buildStormButton(StormType.earthquake, provider)),
+              Expanded(child: _buildStormButton(gridOrder[0], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildStormButton(StormType.snow, provider)),
+              Expanded(child: _buildStormButton(gridOrder[1], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildHurricaneButton(provider)),
+              Expanded(child: _buildStormButton(gridOrder[2], provider)),
             ],
           ),
           const SizedBox(height: 8),
-          
-          // Second row: Flood, Fire, Hail
+
+          // Row 2: Hurricane, Fire, Tornado
           Row(
             children: [
-              Expanded(child: _buildStormButton(StormType.flood, provider)),
+              Expanded(child: _buildStormButton(gridOrder[3], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildStormButton(StormType.fire, provider)),
+              Expanded(child: _buildStormButton(gridOrder[4], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildStormButton(StormType.hail, provider)),
+              Expanded(child: _buildStormButton(gridOrder[5], provider)),
             ],
           ),
           const SizedBox(height: 8),
-          
-          // Third row: Tornado, Hurricane FL, TX/CA
+
+          // Row 3: Florida, California, Texas
           Row(
             children: [
-              Expanded(child: _buildStormButton(StormType.tornado, provider)),
+              Expanded(child: _buildStormButton(gridOrder[6], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildStormButton(StormType.hurricaneFlorida, provider, label: 'Hurricane\nFlorida')),
+              Expanded(child: _buildStormButton(gridOrder[7], provider)),
               const SizedBox(width: 8),
-              Expanded(child: _buildStateButtons()),
+              Expanded(child: _buildStormButton(gridOrder[8], provider)),
             ],
           ),
         ],
@@ -221,21 +233,15 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
     );
   }
 
-  Widget _buildStormButton(StormType stormType, PolicyTrackerProvider provider, {String? label}) {
-    final isSelected = selectedStormType == stormType && !isStateSelection;
-    final totalPolicies = provider.getPolicyCount(stormType, PropertyType.mobileHome) +
-        provider.getPolicyCount(stormType, PropertyType.house) +
-        provider.getPolicyCount(stormType, PropertyType.mansion);
+  Widget _buildStormButton(StormType stormType, PolicyTrackerProvider provider) {
+    final isSelected = selectedStormType == stormType;
+    final totalPolicies = provider.getStormTotal(stormType);
+    final color = _getStormColor(stormType);
 
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) {
-            selectedStormType = null;
-          } else {
-            selectedStormType = stormType;
-            isStateSelection = false; // Regular storm selection
-          }
+          selectedStormType = isSelected ? null : stormType;
         });
       },
       onLongPress: () {
@@ -244,9 +250,9 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: _getStormColor(stormType).withOpacity(0.1),
+          color: color.withOpacity(0.1),
           border: Border.all(
-            color: isSelected ? _getStormColor(stormType) : Colors.grey.shade300,
+            color: isSelected ? color : Colors.grey.shade300,
             width: isSelected ? 3 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -257,14 +263,10 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    _getStormIcon(stormType),
-                    color: _getStormColor(stormType),
-                    size: 28,
-                  ),
+                  _buildStormIcon(stormType, color, 28),
                   const SizedBox(height: 4),
                   Text(
-                    label ?? _getStormName(stormType),
+                    _getStormName(stormType),
                     style: const TextStyle(fontSize: 11),
                     textAlign: TextAlign.center,
                   ),
@@ -279,7 +281,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: _getStormColor(stormType),
+                  color: color,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -303,11 +305,11 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: _getStormColor(stormType),
+                    color: color,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.track_changes,  // Bullseye icon
+                    Icons.track_changes,
                     color: Colors.white,
                     size: 14,
                   ),
@@ -322,11 +324,11 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: _getStormColor(stormType),
+                    color: color,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.person,  // Person in suit icon
+                    Icons.person,
                     color: Colors.white,
                     size: 14,
                   ),
@@ -334,241 +336,6 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
               ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHurricaneButton(PolicyTrackerProvider provider) {
-    final isSelected = selectedStormType == StormType.hurricaneOther && !isStateSelection;
-    final totalPolicies = provider.getPolicyCount(StormType.hurricaneOther, PropertyType.mobileHome) +
-        provider.getPolicyCount(StormType.hurricaneOther, PropertyType.house) +
-        provider.getPolicyCount(StormType.hurricaneOther, PropertyType.mansion);
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (isSelected) {
-            selectedStormType = null;
-          } else {
-            selectedStormType = StormType.hurricaneOther;
-            isStateSelection = false; // Regular storm selection
-          }
-        });
-      },
-      onLongPress: () {
-        _showPolicyDetails(context, StormType.hurricaneOther, provider);
-      },
-      child: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.purple.shade50,
-          border: Border.all(
-            color: isSelected ? Colors.purple : Colors.grey.shade300,
-            width: isSelected ? 3 : 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.cyclone,
-                    color: Colors.purple.shade300,
-                    size: 28,
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Hurricane',
-                    style: TextStyle(fontSize: 11),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            // Policy count circle (top right)
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade300,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    totalPolicies.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Growth Target indicator (top left)
-            if (provider.hasGrowthTargetCard(StormType.hurricaneOther))
-              Positioned(
-                left: 4,
-                top: 4,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade300,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.track_changes,  // Bullseye icon
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ),
-            // Agent of Year indicator (bottom left)
-            if (provider.hasAgentOfYearCard(StormType.hurricaneOther))
-              Positioned(
-                left: 4,
-                bottom: 4,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade300,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person,  // Person in suit icon
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStateButtons() {
-    return Container(
-      height: 80,
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isStateSelection && isCaliforniaSelected) {
-                    // Deselect California
-                    selectedStormType = null;
-                    isStateSelection = false;
-                  } else {
-                    // Select California
-                    selectedStormType = StormType.fire; // CA uses fire as marker internally
-                    isCaliforniaSelected = true;
-                    isStateSelection = true;
-                  }
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    stops: [0.5, 0.5],
-                    colors: [
-                      Colors.red.withOpacity(0.2),  // Fire color
-                      Color(0xFF6D4C41).withOpacity(0.2), // Earthquake color - more brown
-                    ],
-                  ),
-                  border: Border.all(
-                    color: (isStateSelection && isCaliforniaSelected) 
-                        ? Colors.orange.shade700 : Colors.grey.shade300,
-                    width: (isStateSelection && isCaliforniaSelected) ? 3 : 1,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('CA', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.local_fire_department, size: 12, color: Colors.red),
-                        const Text('/', style: TextStyle(fontSize: 9)),
-                        Icon(Icons.landscape, size: 12, color: Color(0xFF6D4C41)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isStateSelection && !isCaliforniaSelected) {
-                    // Deselect Texas
-                    selectedStormType = null;
-                    isStateSelection = false;
-                  } else {
-                    // Select Texas
-                    selectedStormType = StormType.tornado; // TX uses tornado as marker internally
-                    isCaliforniaSelected = false;
-                    isStateSelection = true;
-                  }
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    stops: [0.5, 0.5],
-                    colors: [
-                      Colors.purple.shade300.withOpacity(0.2), // Hurricane color
-                      Colors.grey.withOpacity(0.2),            // Tornado color
-                    ],
-                  ),
-                  border: Border.all(
-                    color: (isStateSelection && !isCaliforniaSelected) 
-                        ? Colors.purple.shade400 : Colors.grey.shade300,
-                    width: (isStateSelection && !isCaliforniaSelected) ? 3 : 1,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(8),
-                    bottomRight: Radius.circular(8),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('TX', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.cyclone, size: 12, color: Colors.purple.shade300),
-                        const Text('/', style: TextStyle(fontSize: 9)),
-                        Icon(Icons.air, size: 12, color: Colors.grey),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -594,13 +361,13 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
 
   Widget _buildPropertyButton(PropertyType propertyType, String label, PolicyTrackerProvider provider) {
     final isSelected = selectedPropertyType == propertyType;
-    
+
     // Calculate total policies of this property type across all storms
     int totalCount = 0;
     for (final storm in StormType.values) {
       totalCount += provider.getPolicyCount(storm, propertyType);
     }
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -611,11 +378,11 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
         _showPropertyBreakdown(context, propertyType, label, provider);
       },
       child: Container(
-        height: 80,  // Increased from 60 to 80 (33% increase)
+        height: 80,
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: Colors.teal.shade50,
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            color: isSelected ? Colors.teal : Colors.grey.shade300,
             width: isSelected ? 3 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -628,8 +395,8 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 children: [
                   Icon(
                     _getPropertyIcon(propertyType),
-                    color: Colors.blue.shade700,
-                    size: 28,  // Increased from 20 to 28
+                    color: Colors.teal.shade700,
+                    size: 28,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -647,8 +414,8 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
                 child: Container(
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
+                  decoration: const BoxDecoration(
+                    color: Colors.teal,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -667,49 +434,6 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStormGridLandscape(PolicyTrackerProvider provider) {
-    // Same as portrait grid but might adjust spacing
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // First row: EQ, Snow, Hurricane
-        Row(
-          children: [
-            Expanded(child: _buildStormButton(StormType.earthquake, provider)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildStormButton(StormType.snow, provider)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildHurricaneButton(provider)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        
-        // Second row: Flood, Fire, Hail
-        Row(
-          children: [
-            Expanded(child: _buildStormButton(StormType.flood, provider)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildStormButton(StormType.fire, provider)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildStormButton(StormType.hail, provider)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        
-        // Third row: Tornado, Hurricane FL, TX/CA
-        Row(
-          children: [
-            Expanded(child: _buildStormButton(StormType.tornado, provider)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildStormButton(StormType.hurricaneFlorida, provider, label: 'Hurricane\nFlorida')),
-            const SizedBox(width: 8),
-            Expanded(child: _buildStateButtons()),
-          ],
-        ),
-      ],
     );
   }
 
@@ -757,7 +481,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Remove button (smaller, takes up 40% of height)
         Expanded(
           flex: 2,
@@ -803,7 +527,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Add button (larger)
           Expanded(
             child: SizedBox(
@@ -832,26 +556,12 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       return;
     }
 
-    // Handle California (Fire + Earthquake)
-    if (isStateSelection && isCaliforniaSelected) {
-      provider.incrementPolicy(StormType.fire, selectedPropertyType!, context);
-      provider.incrementPolicy(StormType.earthquake, selectedPropertyType!, context);
-    }
-    // Handle Texas (Tornado + Hurricane)
-    else if (isStateSelection && !isCaliforniaSelected) {
-      provider.incrementPolicy(StormType.tornado, selectedPropertyType!, context);
-      provider.incrementPolicy(StormType.hurricaneOther, selectedPropertyType!, context);
-    }
-    // Handle regular storm types
-    else {
-      provider.incrementPolicy(selectedStormType!, selectedPropertyType!, context);
-    }
+    provider.incrementPolicy(selectedStormType!, selectedPropertyType!, context);
 
     // Clear selections
     setState(() {
       selectedStormType = null;
       selectedPropertyType = null;
-      isStateSelection = false;
     });
   }
 
@@ -861,16 +571,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
       return;
     }
 
-    // Build confirmation message
-    String stormName;
-    if (isStateSelection && isCaliforniaSelected) {
-      stormName = 'California (Fire/Earthquake)';
-    } else if (isStateSelection && !isCaliforniaSelected) {
-      stormName = 'Texas (Tornado/Hurricane)';
-    } else {
-      stormName = _getStormName(selectedStormType!);
-    }
-
+    String stormName = _getStormName(selectedStormType!);
     String propertyName = _getPropertyName(selectedPropertyType!);
 
     // Show confirmation dialog
@@ -888,40 +589,17 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                
-                // Check if removal is possible
-                if (isStateSelection && isCaliforniaSelected) {
-                  // California - check both fire and earthquake
-                  if (provider.getPolicyCount(StormType.fire, selectedPropertyType!) > 0 &&
-                      provider.getPolicyCount(StormType.earthquake, selectedPropertyType!) > 0) {
-                    provider.decrementPolicy(StormType.fire, selectedPropertyType!);
-                    provider.decrementPolicy(StormType.earthquake, selectedPropertyType!);
-                  } else {
-                    _showErrorDialog('Not enough policies to remove.');
-                  }
-                } else if (isStateSelection && !isCaliforniaSelected) {
-                  // Texas - check both tornado and hurricane
-                  if (provider.getPolicyCount(StormType.tornado, selectedPropertyType!) > 0 &&
-                      provider.getPolicyCount(StormType.hurricaneOther, selectedPropertyType!) > 0) {
-                    provider.decrementPolicy(StormType.tornado, selectedPropertyType!);
-                    provider.decrementPolicy(StormType.hurricaneOther, selectedPropertyType!);
-                  } else {
-                    _showErrorDialog('Not enough policies to remove.');
-                  }
+
+                if (provider.getPolicyCount(selectedStormType!, selectedPropertyType!) > 0) {
+                  provider.decrementPolicy(selectedStormType!, selectedPropertyType!);
                 } else {
-                  // Regular storm type
-                  if (provider.getPolicyCount(selectedStormType!, selectedPropertyType!) > 0) {
-                    provider.decrementPolicy(selectedStormType!, selectedPropertyType!);
-                  } else {
-                    _showErrorDialog('Not enough policies to remove.');
-                  }
+                  _showErrorDialog('Not enough policies to remove.');
                 }
 
                 // Clear selections
                 setState(() {
                   selectedStormType = null;
                   selectedPropertyType = null;
-                  isStateSelection = false;
                 });
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -960,9 +638,8 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   }
 
   void _showPropertyBreakdown(BuildContext context, PropertyType propertyType, String label, PolicyTrackerProvider provider) {
-    // Get policy counts for this property type across all storm types
     List<Widget> policyBreakdown = [];
-    
+
     for (final storm in StormType.values) {
       final count = provider.getPolicyCount(storm, propertyType);
       if (count > 0) {
@@ -971,11 +648,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                Icon(
-                  _getStormIcon(storm),
-                  color: _getStormColor(storm),
-                  size: 20,
-                ),
+                _buildStormIcon(storm, _getStormColor(storm), 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -996,7 +669,7 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
         );
       }
     }
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1041,94 +714,74 @@ class _TrackerV3ScreenState extends State<TrackerV3Screen> {
   Color _getStormColor(StormType stormType) {
     switch (stormType) {
       case StormType.snow:
-        return Colors.blue.shade200;
-      case StormType.earthquake:
-        return Color(0xFF6D4C41);  // More distinct brown color
+        return const Color(0xFF02A9F4);
+      case StormType.flood:
+        return const Color(0xFF1A4784); // Dark royal blue (KC Royals)
+      case StormType.hail:
+        return const Color(0xFFFFEB3B);
       case StormType.hurricaneOther:
         return Colors.purple.shade300;
-      case StormType.flood:
-        return Colors.blue;
       case StormType.fire:
         return Colors.red;
-      case StormType.hail:
-        return Colors.yellow.shade700;
       case StormType.tornado:
         return Colors.grey;
       case StormType.hurricaneFlorida:
         return Colors.purple.shade700;
-      default:
-        return Colors.grey;
+      case StormType.fireCalifornia:
+        return const Color(0xFFB71C1C); // Darker red
+      case StormType.tornadoTexas:
+        return const Color(0xFF424242); // Darker grey
     }
+  }
+
+  Widget _buildStormIcon(StormType stormType, Color color, double size) {
+    if (stormType == StormType.tornado || stormType == StormType.tornadoTexas) {
+      return SvgPicture.asset(
+        'assets/icons/tornado.svg',
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    }
+    return Icon(_getStormIcon(stormType), color: color, size: size);
   }
 
   IconData _getStormIcon(StormType stormType) {
     switch (stormType) {
       case StormType.snow:
         return Icons.ac_unit;
-      case StormType.earthquake:
-        return Icons.landscape;
+      case StormType.flood:
+        return Icons.water;
+      case StormType.hail:
+        return Icons.grain;
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone;
-      case StormType.flood:
-        return Icons.water;
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department;
-      case StormType.hail:
-        return Icons.grain;
       case StormType.tornado:
-        return Icons.air;
-      default:
-        return Icons.warning;
+      case StormType.tornadoTexas:
+        return Icons.tornado;
     }
   }
 
   IconData _getPropertyIcon(PropertyType propertyType) {
     switch (propertyType) {
       case PropertyType.mobileHome:
-        return Icons.rv_hookup;  // More appropriate for mobile home
+        return Icons.rv_hookup;
       case PropertyType.house:
         return Icons.home;
       case PropertyType.mansion:
         return Icons.villa;
-      default:
-        return Icons.home;
     }
   }
 
   String _getStormName(StormType stormType) {
-    switch (stormType) {
-      case StormType.snow:
-        return 'Snow';
-      case StormType.earthquake:
-        return 'Earthquake';
-      case StormType.hurricaneOther:
-        return 'Hurricane';
-      case StormType.flood:
-        return 'Flood';
-      case StormType.fire:
-        return 'Fire';
-      case StormType.hail:
-        return 'Hail';
-      case StormType.tornado:
-        return 'Tornado';
-      case StormType.hurricaneFlorida:
-        return 'Hurricane FL';
-      default:
-        return '';
-    }
+    return PolicyData.stormNames[stormType] ?? '';
   }
 
   String _getPropertyName(PropertyType propertyType) {
-    switch (propertyType) {
-      case PropertyType.mobileHome:
-        return 'Mobile Home';
-      case PropertyType.house:
-        return 'House';
-      case PropertyType.mansion:
-        return 'Mansion';
-      default:
-        return '';
-    }
+    return PolicyData.propertyNames[propertyType] ?? '';
   }
 }

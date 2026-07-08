@@ -14,9 +14,34 @@ server {
     location / {
         try_files $uri $uri/ /index.html;
     }
-    
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+
+    # index.html and flutter_bootstrap.js must NEVER be cached
+    # These are the entry points that reference all other (hashed) files
+    location = /index.html {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+    }
+
+    location = /flutter_bootstrap.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    # flutter_service_worker.js must not be cached either
+    location = /flutter_service_worker.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    # Cache static assets (fonts, images) — these rarely change
+    location ~* \.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # JS/CSS files — Flutter build output uses content hashes in filenames,
+    # so they can be cached long-term. main.dart.js is the exception but
+    # flutter_bootstrap.js (uncached above) always points to the right version.
+    location ~* \.(js|css)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }

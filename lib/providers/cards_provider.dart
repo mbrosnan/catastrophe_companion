@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/policy_data.dart';
+import 'game_config_provider.dart';
 
 class VictoryCard {
   final String name;
@@ -18,15 +19,18 @@ class VictoryCard {
 class CardsProvider extends ChangeNotifier {
   final Map<String, bool> _cardStates = {};
   int _loanVPCost = 0;
+
+  // Store reference to GameConfigProvider
+  GameConfigProvider? _configProvider;
+
+  // Update the game configuration reference
+  void updateGameConfig(GameConfigProvider configProvider) {
+    _configProvider = configProvider;
+    notifyListeners();
+  }
   
   static final List<VictoryCard> allCards = [
     // Storm Agent Cards
-    const VictoryCard(
-      name: 'Earthquake Agent',
-      victoryPoints: 10,
-      isAgent: true,
-      agentStorm: StormType.earthquake,
-    ),
     const VictoryCard(
       name: 'Snow Agent',
       victoryPoints: 10,
@@ -107,13 +111,45 @@ class CardsProvider extends ChangeNotifier {
   }
 
   int getTotalCardVictoryPoints() {
+    if (_configProvider == null) {
+      // Fall back to hardcoded values if config not loaded
+      int total = 0;
+      for (final card in allCards) {
+        if (_cardStates[card.name] ?? false) {
+          if (card.name == 'Loan') {
+            total -= _loanVPCost;
+          } else {
+            total += card.victoryPoints;
+          }
+        }
+      }
+      return total;
+    }
+
+    // Use configuration values
     int total = 0;
     for (final card in allCards) {
       if (_cardStates[card.name] ?? false) {
         if (card.name == 'Loan') {
           total -= _loanVPCost;
         } else {
-          total += card.victoryPoints;
+          // Get victory points from configuration
+          int points = 0;
+          if (card.name.contains('Agent')) {
+            // Agent cards
+            if (card.name == 'Snow Agent') points = _configProvider!.getCardPoints('snow');
+            else if (card.name == 'Hurricane Agent') points = _configProvider!.getCardPoints('hurricane');
+            else if (card.name == 'Flood Agent') points = _configProvider!.getCardPoints('flood');
+            else if (card.name == 'Fire Agent') points = _configProvider!.getCardPoints('fire');
+            else if (card.name == 'Hail Agent') points = _configProvider!.getCardPoints('hail');
+            else if (card.name == 'Tornado Agent') points = _configProvider!.getCardPoints('tornado');
+            else if (card.name == 'Diversified Agent of the Year') points = _configProvider!.getCardPoints('diversified');
+          } else if (card.name == 'Major Celebrity Endorsement') {
+            points = _configProvider!.getCardPoints('major');
+          } else if (card.name == 'Minor Celebrity Endorsement') {
+            points = _configProvider!.getCardPoints('minor');
+          }
+          total += points;
         }
       }
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../models/policy_data.dart';
 import '../providers/cards_provider.dart';
@@ -218,38 +219,51 @@ class _CardTile extends StatelessWidget {
             fontWeight: isChecked ? FontWeight.w500 : FontWeight.normal,
           ),
         ),
-        secondary: Icon(
-          card.isAgent 
-              ? (card.name == 'Diversified Agent of the Year' 
-                  ? Icons.diversity_3 
-                  : _getStormIcon(card.agentStorm!))
-              : (card.name == 'Loan' ? Icons.account_balance : Icons.star),
-          color: iconColor,
-          size: 32,
-        ),
+        secondary: _buildCardIcon(card, iconColor),
         controlAffinity: ListTileControlAffinity.leading,
         activeColor: iconColor,
       ),
     );
   }
 
+  Widget _buildCardIcon(VictoryCard card, Color? iconColor) {
+    if (card.isAgent && card.name != 'Diversified Agent of the Year' && card.agentStorm != null) {
+      if (card.agentStorm == StormType.tornado || card.agentStorm == StormType.tornadoTexas) {
+        return SvgPicture.asset(
+          'assets/icons/tornado.svg',
+          width: 32,
+          height: 32,
+          colorFilter: ColorFilter.mode(iconColor ?? Colors.grey, BlendMode.srcIn),
+        );
+      }
+      return Icon(_getStormIcon(card.agentStorm!), color: iconColor, size: 32);
+    }
+    if (card.isAgent) {
+      return Icon(Icons.diversity_3, color: iconColor, size: 32);
+    }
+    if (card.name == 'Loan') {
+      return Icon(Icons.account_balance, color: iconColor, size: 32);
+    }
+    return Icon(Icons.star, color: iconColor, size: 32);
+  }
+
   IconData _getStormIcon(StormType storm) {
     switch (storm) {
       case StormType.snow:
         return Icons.ac_unit;
-      case StormType.earthquake:
-        return Icons.landscape;
       case StormType.hurricaneOther:
       case StormType.hurricaneFlorida:
         return Icons.cyclone;
       case StormType.flood:
         return Icons.water;
       case StormType.fire:
+      case StormType.fireCalifornia:
         return Icons.local_fire_department;
       case StormType.hail:
         return Icons.grain;
       case StormType.tornado:
-        return Icons.air;
+      case StormType.tornadoTexas:
+        return Icons.tornado;
     }
   }
 }
